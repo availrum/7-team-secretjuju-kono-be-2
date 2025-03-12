@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: npm install
+        run: ./gradlew build
 
       - name: Run Semantic Release
         env:
