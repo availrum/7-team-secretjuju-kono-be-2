@@ -8,6 +8,11 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -17,7 +22,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # 최신 버전 추천
+          node-version: '18'
 
       - name: Install Semantic Release dependencies
         run: npm install -g semantic-release @semantic-release/changelog @semantic-release/github @semantic-release/commit-analyzer @semantic-release/release-notes-generator @semantic-release/git
