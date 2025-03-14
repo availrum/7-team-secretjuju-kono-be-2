@@ -1,0 +1,18 @@
+##!/bin/sh
+##./gradlew spotlessApply build
+#
+#echo "🔍 Spotless 네이버 스타일 검사 실행 중..."
+#./gradlew spotlessCheck
+#if [ $? -ne 0 ]; then
+#  echo "❌ Spotless 스타일 오류! 커밋이 중단됩니다."
+#  exit 1
+#fi
+#
+#echo "🔍 Checkstyle 검사 실행 중..."
+#./gradlew checkstyleMain
+#if [ $? -ne 0 ]; then
+#  echo "❌ Checkstyle 규칙 위반! 커밋이 중단됩니다."
+#  exit 1
+#fi
+#
+#echo "✅ 모든 검사 통과! 커밋을 진행할 수 있습니다."
