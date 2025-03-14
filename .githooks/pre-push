@@ -1,2 +1,2 @@
-##!/bin/sh
-#./gradlew clean test
+#!/bin/sh
+./gradlew clean test

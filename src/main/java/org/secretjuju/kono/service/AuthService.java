@@ -1,8 +1,8 @@
 package org.secretjuju.kono.service;
 
 import org.secretjuju.kono.dto.request.KakaoTokenRequest;
-import org.secretjuju.kono.dto.response.KakaoUserInfoResponse;
 import org.secretjuju.kono.dto.request.LoginRequest;
+import org.secretjuju.kono.dto.response.KakaoUserInfoResponse;
 import org.springframework.stereotype.Service;
 
 @Service

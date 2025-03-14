@@ -1,6 +1,5 @@
 package org.secretjuju.kono.dto.response;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
