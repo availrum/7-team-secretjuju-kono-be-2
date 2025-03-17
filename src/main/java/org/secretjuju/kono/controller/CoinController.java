@@ -1,0 +1,28 @@
+package org.secretjuju.kono.controller;
+
+import org.secretjuju.kono.dto.CoinRequestDto;
+import org.secretjuju.kono.dto.CoinResponseDto;
+import org.secretjuju.kono.dto.UserRequestDto;
+import org.secretjuju.kono.dto.UserResponseDto;
+import org.secretjuju.kono.service.CoinService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/coin")
+public class CoinController {
+    public final CoinService coinService;
+
+    public CoinController(CoinService coinService) {
+        this.coinService = coinService;
+    }
+
+	@GetMapping("/{ticker}")
+	public CoinResponseDto getCoin(@PathVariable String ticker) {
+		CoinRequestDto coinRequestDto = new CoinRequestDto(ticker);
+		CoinResponseDto coinResponseDto = coinService.getCoinByName(coinRequestDto);
+		return coinResponseDto;
+	}
+}
