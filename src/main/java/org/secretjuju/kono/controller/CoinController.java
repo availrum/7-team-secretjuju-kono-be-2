@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/coin")
 public class CoinController {
-    public final CoinService coinService;
+	public final CoinService coinService;
 
-    public CoinController(CoinService coinService) {
-        this.coinService = coinService;
-    }
+	public CoinController(CoinService coinService) {
+		this.coinService = coinService;
+	}
 
 	@GetMapping("/{ticker}")
 	public CoinResponseDto getCoin(@PathVariable String ticker) {

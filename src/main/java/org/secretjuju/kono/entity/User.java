@@ -19,7 +19,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "user")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor // 기본 생성자 생성
 public class User {
 
