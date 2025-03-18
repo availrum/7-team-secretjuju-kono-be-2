@@ -38,4 +38,4 @@ out/
 
 ### npm ###
 node_modules
-
+.env
