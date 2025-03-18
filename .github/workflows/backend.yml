@@ -24,7 +24,7 @@ jobs:
     - name: Setup SSH Key (base64 decode)
       run: |
         echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
-        chmod 400 key.pem
+        chmod 400 key.pem 
 
     - name: SCP JAR to EC2
       run: scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@3.36.226.164:/home/ubuntu/backend/
