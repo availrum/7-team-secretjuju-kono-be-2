@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'checkstyle'
+	id 'com.diffplug.spotless' version '6.25.0' // auto code formatting
 }
 
 group = 'org.secretjuju'
@@ -11,6 +12,15 @@ version = '0.0.1-SNAPSHOT'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+spotless {
+	java {
+		target '**/*.java'
+		eclipse().configFile("checkstyle/naver-checkstyle-spotless.xml") // 네이버 스타일 적용
+		removeUnusedImports() // 불필요한 import 삭제
+		importOrder("java", "javax", "org", "com") // import 정렬
 	}
 }
 
@@ -23,7 +33,6 @@ configurations {
 repositories {
 	mavenCentral()
 }
-
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
@@ -40,20 +49,36 @@ checkstyle {
 }
 
 dependencies {
-	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	//runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// git hooks
+tasks.register('installGitHooks') {
+	doLast {
+		copy {
+			from "${rootProject.rootDir}/.githooks/"
+			into "${rootProject.rootDir}/.git/hooks/"
+			fileMode 0755
+		}
+	}
+}
+
+tasks.named('build').configure {
+	dependsOn tasks.named('installGitHooks')
 }
