@@ -14,7 +14,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "coin_favorite")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class CoinFavorite {
 
