@@ -2,8 +2,6 @@ package org.secretjuju.kono.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,7 +17,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "daily_ranking")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class DailyRanking {
 

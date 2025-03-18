@@ -1,0 +1,26 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Git 저장소의 루트 디렉토리 찾기
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+# gradlew에 대한 절대 경로 사용
+GRADLEW="$ROOT_DIR/gradlew"
+
+echo '🔍 Running pre-commit checks...'
+$GRADLEW spotlessApply
+$GRADLEW clean build -x test --scan
+
+if [ $? -ne 0 ]; then
+  echo "❌ Pre-commit checks failed. Fix the errors before committing."
+  exit 1
+fi
+
+echo "🔍 Checkstyle 검사 실행 중..."
+$GRADLEW checkstyleMain
+if [ $? -ne 0 ]; then
+  echo "❌ Checkstyle 규칙 위반! 커밋이 중단됩니다."
+  exit 1
+fi
+
+echo "✅ 모든 검사 통과! 커밋을 진행할 수 있습니다."

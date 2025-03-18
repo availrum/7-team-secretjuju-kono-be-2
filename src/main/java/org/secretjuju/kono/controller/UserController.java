@@ -16,7 +16,7 @@ public class UserController {
 	}
 
 	@GetMapping("/user")
-	public UserResponseDto getUsernickname(){
+	public UserResponseDto getUsernickname() {
 		UserRequestDto userRequestDto = new UserRequestDto(1);
 		UserResponseDto userResponseDto = userService.getUserById(userRequestDto);
 		return userResponseDto;

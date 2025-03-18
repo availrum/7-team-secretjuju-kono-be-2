@@ -17,7 +17,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "coin_info")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class CoinInfo {
 

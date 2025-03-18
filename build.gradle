@@ -33,6 +33,7 @@ configurations {
 repositories {
 	mavenCentral()
 }
+
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
@@ -66,19 +67,4 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-}
-
-// git hooks
-tasks.register('installGitHooks') {
-	doLast {
-		copy {
-			from "${rootProject.rootDir}/.githooks/"
-			into "${rootProject.rootDir}/.git/hooks/"
-			fileMode 0755
-		}
-	}
-}
-
-tasks.named('build').configure {
-	dependsOn tasks.named('installGitHooks')
 }

@@ -15,7 +15,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "cash_balance")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class CashBalance {
 

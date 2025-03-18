@@ -9,7 +9,6 @@ public class CoinResponseDto {
 	private String ticker;
 	private String kr_coin_name;
 
-
 	public CoinResponseDto(CoinInfo coinInfo) {
 		this.ticker = coinInfo.getTicker();
 		this.kr_coin_name = coinInfo.getKrCoinName();

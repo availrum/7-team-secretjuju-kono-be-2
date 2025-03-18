@@ -15,7 +15,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "coin_holdings")
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class CoinHolding {
 
