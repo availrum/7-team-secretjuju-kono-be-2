@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CashBalanceResponseDto {
-    private Long cash;
-} 
+	private Long cash;
+}

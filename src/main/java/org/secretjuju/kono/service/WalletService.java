@@ -36,8 +36,8 @@ public class WalletService {
 
 	private TransactionHistoryResponseDto convertToResponse(CoinTransaction transaction) {
 		return new TransactionHistoryResponseDto(transaction.getId(), transaction.getUser().getId(),
-			transaction.getCoinInfo().getId(), transaction.getCoinInfo().getKrCoinName(),
-			transaction.getCoinInfo().getTicker(), transaction.getOrderType(), transaction.getOrderQuantity(),
-			transaction.getOrderPrice(), transaction.getOrderAmount(), transaction.getCreatedAt());
+				transaction.getCoinInfo().getId(), transaction.getCoinInfo().getKrCoinName(),
+				transaction.getCoinInfo().getTicker(), transaction.getOrderType(), transaction.getOrderQuantity(),
+				transaction.getOrderPrice(), transaction.getOrderAmount(), transaction.getCreatedAt());
 	}
 }
