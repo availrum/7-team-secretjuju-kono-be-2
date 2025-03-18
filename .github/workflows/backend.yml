@@ -33,9 +33,9 @@ jobs:
     - name: SSH & Restart Service
       run: |
         ssh -v -i key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.35.8.73 "
-        sh -c '
-          set +e
-          pkill -f "java -jar" || true
-          nohup java -jar /home/ubuntu/backend/*.jar --server.port=8080 > /home/ubuntu/backend/app.log 2>&1 &
-        '
-      "
+          sh -c '
+            set +e
+            pkill -f "java -jar" || true
+            nohup java -jar /home/ubuntu/backend/*.jar --server.port=8080 > /home/ubuntu/backend/app.log 2>&1 &
+          '
+        "
