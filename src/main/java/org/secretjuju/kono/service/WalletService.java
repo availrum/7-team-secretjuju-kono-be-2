@@ -32,7 +32,7 @@ public class WalletService {
 		User currentUser = userService.getCurrentUser();
 		List<CoinTransaction> transactions = coinTransactionRepository.findByUserOrderByCreatedAtDesc(currentUser);
 
-		return transactions.stream().map(this::convertToResponse).collect(Collectors.toList());
+		return transactions.stream().map(this::convertToTransactionsResponse).collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
@@ -69,7 +69,7 @@ public class WalletService {
 		return new CoinHoldingDetailResponseDto(true, totalQuantity);
 	}
 
-	private TransactionHistoryResponseDto convertToResponse(CoinTransaction transaction) {
+	private TransactionHistoryResponseDto convertToTransactionsResponse(CoinTransaction transaction) {
 		return new TransactionHistoryResponseDto(transaction.getId(), transaction.getUser().getId(),
 				transaction.getCoinInfo().getId(), transaction.getCoinInfo().getKrCoinName(),
 				transaction.getCoinInfo().getTicker(), transaction.getOrderType(), transaction.getOrderQuantity(),
