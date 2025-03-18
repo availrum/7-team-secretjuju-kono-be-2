@@ -1,4 +1,4 @@
-package org.secretjuju.kono.dto;
+package org.secretjuju.kono.dto.response;
 
 import org.secretjuju.kono.entity.CoinInfo;
 

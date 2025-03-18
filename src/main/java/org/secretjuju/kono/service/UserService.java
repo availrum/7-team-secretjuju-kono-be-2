@@ -1,8 +1,8 @@
 package org.secretjuju.kono.service;
 
 import org.secretjuju.kono.entity.User;
-import org.secretjuju.kono.dto.UserRequestDto;
-import org.secretjuju.kono.dto.UserResponseDto;
+import org.secretjuju.kono.dto.request.UserRequestDto;
+import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

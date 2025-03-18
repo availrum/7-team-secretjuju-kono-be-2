@@ -1,7 +1,7 @@
 package org.secretjuju.kono.controller;
 
-import org.secretjuju.kono.dto.UserRequestDto;
-import org.secretjuju.kono.dto.UserResponseDto;
+import org.secretjuju.kono.dto.request.UserRequestDto;
+import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.service.UserService;
 import org.springframework.web.bind.annotation.*;
 

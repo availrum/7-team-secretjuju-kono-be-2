@@ -1,4 +1,4 @@
-package org.secretjuju.kono.dto;
+package org.secretjuju.kono.dto.request;
 
 import lombok.Getter;
 

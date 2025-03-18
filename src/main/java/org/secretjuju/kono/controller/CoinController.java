@@ -1,9 +1,7 @@
 package org.secretjuju.kono.controller;
 
-import org.secretjuju.kono.dto.CoinRequestDto;
-import org.secretjuju.kono.dto.CoinResponseDto;
-import org.secretjuju.kono.dto.UserRequestDto;
-import org.secretjuju.kono.dto.UserResponseDto;
+import org.secretjuju.kono.dto.request.CoinRequestDto;
+import org.secretjuju.kono.dto.response.CoinResponseDto;
 import org.secretjuju.kono.service.CoinService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
