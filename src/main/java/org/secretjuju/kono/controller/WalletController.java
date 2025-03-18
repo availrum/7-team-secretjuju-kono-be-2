@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.CashBalanceResponseDto;
+import org.secretjuju.kono.dto.response.CoinHoldingDetailResponseDto;
 import org.secretjuju.kono.dto.response.CoinHoldingResponseDto;
 import org.secretjuju.kono.dto.response.TransactionHistoryResponseDto;
 import org.secretjuju.kono.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,5 +39,12 @@ public class WalletController {
 	public ResponseEntity<ApiResponseDto<List<CoinHoldingResponseDto>>> getCoinHoldings() {
 		List<CoinHoldingResponseDto> coinHoldings = walletService.getCoinHoldings();
 		return ResponseEntity.ok(new ApiResponseDto<>("Coin holdings retrieved", coinHoldings));
+	}
+
+	@GetMapping("/coins/{ticker}")
+	public ResponseEntity<ApiResponseDto<CoinHoldingDetailResponseDto>> getCoinHoldingDetail(
+			@PathVariable String ticker) {
+		CoinHoldingDetailResponseDto coinHoldingDetail = walletService.getCoinHoldingDetail(ticker);
+		return ResponseEntity.ok(new ApiResponseDto<>("Coin detail data retrieved", coinHoldingDetail));
 	}
 }
