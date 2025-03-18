@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.CashBalanceResponseDto;
+import org.secretjuju.kono.dto.response.CoinHoldingResponseDto;
 import org.secretjuju.kono.dto.response.TransactionHistoryResponseDto;
 import org.secretjuju.kono.service.WalletService;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +31,11 @@ public class WalletController {
 	public ResponseEntity<ApiResponseDto<CashBalanceResponseDto>> getCashBalance() {
 		CashBalanceResponseDto cashBalance = walletService.getCashBalance();
 		return ResponseEntity.ok(new ApiResponseDto<>("Cash data retrieved", cashBalance));
+	}
+
+	@GetMapping("/coins")
+	public ResponseEntity<ApiResponseDto<List<CoinHoldingResponseDto>>> getCoinHoldings() {
+		List<CoinHoldingResponseDto> coinHoldings = walletService.getCoinHoldings();
+		return ResponseEntity.ok(new ApiResponseDto<>("Coin holdings retrieved", coinHoldings));
 	}
 }

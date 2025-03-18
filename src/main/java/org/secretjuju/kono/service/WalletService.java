@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.secretjuju.kono.dto.response.CashBalanceResponseDto;
+import org.secretjuju.kono.dto.response.CoinHoldingResponseDto;
 import org.secretjuju.kono.dto.response.TransactionHistoryResponseDto;
+import org.secretjuju.kono.entity.CoinHolding;
 import org.secretjuju.kono.entity.CoinTransaction;
 import org.secretjuju.kono.entity.User;
 import org.secretjuju.kono.repository.CoinTransactionRepository;
@@ -34,10 +36,22 @@ public class WalletService {
 		return new CashBalanceResponseDto(currentUser.getCashBalance().getBalance());
 	}
 
+	@Transactional(readOnly = true)
+	public List<CoinHoldingResponseDto> getCoinHoldings() {
+		User currentUser = userService.getCurrentUser();
+		return currentUser.getCoinHoldings().stream().map(this::convertToCoinHoldingResponse)
+				.collect(Collectors.toList());
+	}
+
 	private TransactionHistoryResponseDto convertToResponse(CoinTransaction transaction) {
 		return new TransactionHistoryResponseDto(transaction.getId(), transaction.getUser().getId(),
 				transaction.getCoinInfo().getId(), transaction.getCoinInfo().getKrCoinName(),
 				transaction.getCoinInfo().getTicker(), transaction.getOrderType(), transaction.getOrderQuantity(),
 				transaction.getOrderPrice(), transaction.getOrderAmount(), transaction.getCreatedAt());
+	}
+
+	private CoinHoldingResponseDto convertToCoinHoldingResponse(CoinHolding holding) {
+		return new CoinHoldingResponseDto(holding.getCoinInfo().getTicker(), holding.getCoinInfo().getKrCoinName(),
+				holding.getHoldingQuantity(), holding.getHoldingPrice());
 	}
 }
