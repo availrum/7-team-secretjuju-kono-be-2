@@ -9,6 +9,10 @@ GRADLEW="$ROOT_DIR/gradlew"
 
 echo '🔍 Running pre-commit checks...'
 $GRADLEW spotlessApply
+
+# 변경된 파일이 있다면 자동 추가
+git add .
+
 $GRADLEW clean build -x test --scan
 
 if [ $? -ne 0 ]; then
