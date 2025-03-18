@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoinHoldingDetailResponseDto {
-	private boolean hasHolding;
-	private double holdingQuantity;
+public class CashBalanceResponse {
+	private Long cash;
 }

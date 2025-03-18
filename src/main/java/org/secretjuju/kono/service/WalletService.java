@@ -55,7 +55,7 @@ public class WalletService {
 		Optional<CoinInfo> coinInfo = coinInfoRepository.findByTicker(ticker);
 
 		if (coinInfo.isEmpty()) {
-			return new CoinHoldingDetailResponseDto(false, "0");
+			return new CoinHoldingDetailResponseDto(false, 0);
 		}
 
 		double totalQuantity = currentUser.getCoinHoldings().stream()
@@ -63,10 +63,10 @@ public class WalletService {
 				.mapToDouble(CoinHolding::getHoldingQuantity).sum();
 
 		if (totalQuantity == 0) {
-			return new CoinHoldingDetailResponseDto(false, "0");
+			return new CoinHoldingDetailResponseDto(false, 0);
 		}
 
-		return new CoinHoldingDetailResponseDto(true, String.format("%.4f", totalQuantity));
+		return new CoinHoldingDetailResponseDto(true, totalQuantity);
 	}
 
 	private TransactionHistoryResponseDto convertToResponse(CoinTransaction transaction) {
