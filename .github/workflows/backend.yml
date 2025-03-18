@@ -21,9 +21,9 @@ jobs:
     - name: Build Spring Boot App
       run: ./gradlew build -x test
 
-    - name: Setup SSH Key
+    - name: Setup SSH Key (base64 decode)
       run: |
-        echo "${{ secrets.EC2_PRIVATE_KEY }}" > key.pem
+        echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
         chmod 400 key.pem
 
     - name: SCP JAR to EC2
