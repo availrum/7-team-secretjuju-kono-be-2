@@ -10,12 +10,12 @@ import org.secretjuju.kono.entity.CoinInfo;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CoinInfoDto {
+public class CoinInfoResponseDto {
     private String ticker;
     private String coinName;
     
-    public static CoinInfoDto fromEntity(CoinInfo coinInfo) {
-        return CoinInfoDto.builder()
+    public static CoinInfoResponseDto fromEntity(CoinInfo coinInfo) {
+        return CoinInfoResponseDto.builder()
                 .ticker(coinInfo.getTicker())
                 .coinName(coinInfo.getKrCoinName())
                 .build();

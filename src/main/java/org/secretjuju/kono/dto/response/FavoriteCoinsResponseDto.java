@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteCoinsResponseDto {
-    private List<CoinInfoDto> data;
+    private List<CoinInfoResponseDto> data;
     
     public static FavoriteCoinsResponseDto fromEntityList(List<CoinInfo> coinInfoList) {
-        List<CoinInfoDto> coinInfoDtos = coinInfoList.stream()
-                .map(CoinInfoDto::fromEntity)
+        List<CoinInfoResponseDto> coinInfoResponseDtos = coinInfoList.stream()
+                .map(CoinInfoResponseDto::fromEntity)
                 .collect(Collectors.toList());
         
         return FavoriteCoinsResponseDto.builder()
-                .data(coinInfoDtos)
+                .data(coinInfoResponseDtos)
                 .build();
     }
 } 
