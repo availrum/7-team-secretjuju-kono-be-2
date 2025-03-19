@@ -15,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/. ")
+@RequestMapping("/api/v1/s3")
 @RequiredArgsConstructor
 public class S3Controller {
 	private final S3Service s3Service;
