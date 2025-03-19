@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findById(Integer id);
 	Optional<User> findByKakaoId(Long kakaoId);
+	void deleteByKakaoId(Long kakaoId);
 }

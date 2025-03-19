@@ -7,19 +7,31 @@ import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
 import org.secretjuju.kono.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UserService {
-
+	private final WebClient webClient;
 	private final UserRepository userRepository;
 
-	public UserService(UserRepository userRepository) {
+	@Value("${kakao.admin.key}")
+	private String adminKey;
+
+	public UserService(WebClient webClient, UserRepository userRepository) {
+		this.webClient = webClient;
 		this.userRepository = userRepository;
 	}
 
@@ -64,4 +76,28 @@ public class UserService {
 		User currentUser = getCurrentUser();
 		return UserResponseDto.from(currentUser);
 	}
+	@Transactional
+	public void withdrawUser(Long kakaoId) {
+		try {
+			String adminKeyHeader = "KakaoAK " + adminKey;
+
+			webClient.post().uri("/v1/user/unlink").header("Authorization", adminKeyHeader)
+					.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+					.body(BodyInserters.fromFormData("target_id_type", "user_id").with("target_id", kakaoId.toString()))
+					.retrieve().bodyToMono(String.class).block();
+
+			log.info("카카오 연결끊기 성공: kakaoId={}", kakaoId);
+			userRepository.deleteByKakaoId(kakaoId);
+
+			log.info("DB 사용자 정보 삭제 성공: kakaoId={}", kakaoId);
+
+		} catch (WebClientResponseException e) {
+			log.error("카카오 연결끊기 API 호출 실패: status={}, body={}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+			throw new RuntimeException("카카오 연결끊기 실패", e);
+		} catch (Exception e) {
+			log.error("회원탈퇴 처리 중 오류 발생: kakaoId={}", kakaoId, e);
+			throw new RuntimeException("회원탈퇴 처리 중 오류가 발생했습니다.", e);
+		}
+	}
+
 }

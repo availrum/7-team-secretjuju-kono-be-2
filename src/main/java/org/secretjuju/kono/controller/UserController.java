@@ -15,8 +15,11 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 // @RequiredArgsConstructor
@@ -77,5 +80,29 @@ public class UserController {
 	public ResponseEntity<Void> deleteFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
 		coinFavoriteService.deleteFavoriteCoin(userId, ticker);
 		return ResponseEntity.ok().build();
+	}
+	// 회원 탈퇴
+	@DeleteMapping("/withdraw")
+	public ResponseEntity<Void> withdrawUser(@AuthenticationPrincipal OAuth2User oauth2User, HttpSession session) {
+		if (oauth2User == null) {
+			return ResponseEntity.status(401).build();
+		}
+
+		try {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+			log.info("회원탈퇴 요청: kakaoId={}", kakaoId);
+
+			// UserService의 withdrawUser 메서드 호출
+			userService.withdrawUser(kakaoId);
+
+			// 세션 무효화
+			session.invalidate();
+
+			return ResponseEntity.ok().build();
+
+		} catch (Exception e) {
+			log.error("회원탈퇴 처리 중 오류 발생", e);
+			return ResponseEntity.status(500).build();
+		}
 	}
 }
