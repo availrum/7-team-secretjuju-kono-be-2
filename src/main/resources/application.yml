@@ -33,16 +33,28 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-  thymeleaf:
-    enabled: true
-    prefix: classpath:/templates/
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_BUCKET_NAME}
+      base-url: ${CLOUDFRONT_URL}
+
+thymeleaf:
+  enabled: true
+  prefix: classpath:/templates/
+  suffix: .html
+  cache: false
+  check-template-location: true
+mvc:
+  view:
+    prefix: /templates/
     suffix: .html
-    cache: false
-    check-template-location: true
-  mvc:
-    view:
-      prefix: /templates/
-      suffix: .html
 
 logging:
   level:

@@ -40,7 +40,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 		User user = userRepository.findByKakaoId(kakaoId).orElseGet(() -> saveUser(kakaoId, nickname, profileImageUrl));
 
 		log.info("User logged in: {}", user.getNickname());
-
+		// SecurityContext에 저장될 사용자 객체 반환
 		return new DefaultOAuth2User(Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), attributes, "id");
 	}
 

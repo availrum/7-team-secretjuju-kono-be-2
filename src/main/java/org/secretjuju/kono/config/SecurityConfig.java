@@ -40,7 +40,7 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
+		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
 						.maximumSessions(1).expiredUrl("/login"))
 				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login").invalidateHttpSession(true)
@@ -48,7 +48,12 @@ public class SecurityConfig {
 				.authorizeHttpRequests(
 						auth -> auth.requestMatchers("/", "/login", "/oauth2/**", "/css/**", "/images/**", "/js/**")
 								.permitAll().anyRequest().authenticated())
-				.oauth2Login(oauth2 -> oauth2.loginPage("/login").defaultSuccessUrl("/main", true));
+				.oauth2Login(oauth2 -> oauth2.loginPage("/login")
+						.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
+						.successHandler(successHandler())
+						.authorizationEndpoint(authorization -> authorization
+								.authorizationRequestResolver(customAuthorizationRequestResolver()))
+						.defaultSuccessUrl("/main", true));
 
 		return http.build();
 	}
