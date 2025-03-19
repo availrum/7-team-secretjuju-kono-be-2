@@ -23,4 +23,5 @@ public class CoinController {
 		CoinResponseDto coinResponseDto = coinService.getCoinByName(coinRequestDto);
 		return coinResponseDto;
 	}
+
 }
