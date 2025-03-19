@@ -2,6 +2,7 @@ package org.secretjuju.kono.controller;
 
 import java.util.List;
 
+import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.FavoriteCoinsResponseDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
@@ -9,11 +10,15 @@ import org.secretjuju.kono.entity.CoinInfo;
 import org.secretjuju.kono.service.CoinFavoriteService;
 import org.secretjuju.kono.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/users")
 // @RequiredArgsConstructor
 public class UserController {
 
@@ -24,14 +29,28 @@ public class UserController {
 		this.coinFavoriteService = coinFavoriteService;
 	}
 
-	@GetMapping("/user")
+	@GetMapping("")
 	public UserResponseDto getUsernickname(@RequestParam Integer userId) {
 		UserRequestDto userRequestDto = new UserRequestDto(userId);
 		UserResponseDto userResponseDto = userService.getUserById(userRequestDto);
 		return userResponseDto;
 	}
 
-	@GetMapping("/users/favorites")
+	@PutMapping("/nickname")
+	public ResponseEntity<UserResponseDto> updateNickname(@AuthenticationPrincipal OAuth2User oauth2User,
+			@Valid @RequestBody NicknameUpdateRequest request) {
+		if (oauth2User == null) {
+			return ResponseEntity.status(401).build();
+		}
+
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+
+		UserResponseDto updatedUser = userService.updateNickname(kakaoId, request);
+
+		return ResponseEntity.ok(updatedUser);
+	}
+
+	@GetMapping("/favorites")
 	public ResponseEntity<FavoriteCoinsResponseDto> getUserFavorites(@RequestParam Integer userId) {
 		// 사용자의 관심 코인 목록 조회
 		List<CoinInfo> favoriteCoins = coinFavoriteService.findFavoriteCoinsByUserId(userId);
@@ -47,14 +66,14 @@ public class UserController {
 	}
 
 	// 관심 코인 등록
-	@PostMapping("/users/favorites/{ticker}")
+	@PostMapping("/favorites/{ticker}")
 	public ResponseEntity<Void> addFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
 		coinFavoriteService.addFavoriteCoin(userId, ticker);
 		return ResponseEntity.ok().build();
 	}
 
 	// 관심 코인 삭제
-	@DeleteMapping("/users/favorites/{ticker}")
+	@DeleteMapping("/favorites/{ticker}")
 	public ResponseEntity<Void> deleteFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
 		coinFavoriteService.deleteFavoriteCoin(userId, ticker);
 		return ResponseEntity.ok().build();

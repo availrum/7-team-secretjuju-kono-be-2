@@ -2,11 +2,14 @@ package org.secretjuju.kono.service;
 
 import java.util.Optional;
 
+import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 public class UserService {
 
@@ -16,11 +19,23 @@ public class UserService {
 		this.userRepository = userRepository;
 	}
 
-	// 🔹 userId로 사용자 정보 조회
+	@Transactional
+	public UserResponseDto updateNickname(Long kakaoId, NicknameUpdateRequest request) {
+		User user = getUserByKakaoId(kakaoId);
+		user.setNickname(request.getNickname());
+
+		User savedUser = userRepository.save(user);
+		return UserResponseDto.from(savedUser);
+	}
+
+	// userId로 사용자 정보 조회
 	public UserResponseDto getUserById(UserRequestDto userRequestDto) {
 		Optional<User> user = userRepository.findById(userRequestDto.getId());
-		UserResponseDto userResponseDto = new UserResponseDto(user.orElse(null));
-		return userResponseDto;
+		return user.map(UserResponseDto::from).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+	}
+
+	public User getUserByKakaoId(Long kakaoId) {
+		return userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 	}
 
 	// 현재 로그인한 사용자 정보 조회
