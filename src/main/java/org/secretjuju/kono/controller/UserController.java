@@ -10,6 +10,7 @@ import org.secretjuju.kono.service.CoinFavoriteService;
 import org.secretjuju.kono.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/api/v1")
