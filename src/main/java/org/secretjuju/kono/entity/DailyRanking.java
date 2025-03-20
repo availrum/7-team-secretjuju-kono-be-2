@@ -11,9 +11,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "daily_ranking")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DailyRanking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,12 +34,24 @@ public class DailyRanking {
 	@Column(name = "current_total_assets", nullable = false, columnDefinition = "BIGINT UNSIGNED")
 	private Long currentTotalAssets; // 현재 총 자산
 
+	@Column(name = "last_day_total_assets", nullable = false, columnDefinition = "BIGINT UNSIGNED")
+	private Long lastDayTotalAssets; // 어제 23:59 기준 총 자산
+
 	@Column(name = "profit_rate", columnDefinition = "DOUBLE DEFAULT 0.0")
 	private Double profitRate; // 수익률
 
-	@Column(name = "daily_ranking", columnDefinition = "INT DEFAULT 0")
-	private Integer dailyRanking; // 일간 랭킹 순위
+	@Column(name = "daily_rank", columnDefinition = "INT DEFAULT 0")
+	private Integer dailyRank; // 일간 랭킹 순위
 
 	@Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
 	private LocalDateTime createdAt;
+
+	public DailyRanking(User user) {
+		this.user = user;
+		this.currentTotalAssets = 0L;
+		this.lastDayTotalAssets = 0L;
+		this.profitRate = 0.0;
+		this.dailyRank = 0;
+		this.createdAt = LocalDateTime.now();
+	}
 }
