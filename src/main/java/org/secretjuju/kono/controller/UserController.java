@@ -45,8 +45,9 @@ public class UserController {
 	}
 
 	@GetMapping("")
-	public UserResponseDto getUsernickname(@RequestParam Integer userId) {
-		UserRequestDto userRequestDto = new UserRequestDto(userId);
+	public UserResponseDto getUsernickname(@AuthenticationPrincipal OAuth2User oauth2User) {
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		UserRequestDto userRequestDto = new UserRequestDto(kakaoId);
 		UserResponseDto userResponseDto = userService.getUserById(userRequestDto);
 		return userResponseDto;
 	}
@@ -66,9 +67,10 @@ public class UserController {
 	}
 
 	@GetMapping("/favorites")
-	public ResponseEntity<FavoriteCoinsResponseDto> getUserFavorites(@RequestParam Integer userId) {
+	public ResponseEntity<FavoriteCoinsResponseDto> getUserFavorites(@AuthenticationPrincipal OAuth2User oauth2User) {
 		// 사용자의 관심 코인 목록 조회
-		List<CoinInfo> favoriteCoins = coinFavoriteService.findFavoriteCoinsByUserId(Long.valueOf(userId));
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		List<CoinInfo> favoriteCoins = coinFavoriteService.findFavoriteCoinsByUserId(kakaoId);
 
 		// 관심 코인이 없는 경우 204 No Content 반환
 		if (favoriteCoins == null || favoriteCoins.isEmpty()) {

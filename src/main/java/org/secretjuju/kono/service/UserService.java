@@ -46,7 +46,7 @@ public class UserService {
 
 	// userId로 사용자 정보 조회
 	public UserResponseDto getUserById(UserRequestDto userRequestDto) {
-		Optional<User> user = userRepository.findById(userRequestDto.getId());
+		Optional<User> user = userRepository.findByKakaoId(userRequestDto.getId());
 		return user.map(UserResponseDto::from).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 	}
 
