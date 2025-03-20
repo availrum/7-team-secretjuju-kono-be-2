@@ -43,8 +43,8 @@ public class TotalRanking {
 	@Column(name = "total_rank", columnDefinition = "INT DEFAULT 0")
 	private Integer totalRank; // 전체 랭킹 순위
 
-	@Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime createdAt;
+	@Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+	private LocalDateTime updatedAt;
 
 	public TotalRanking(User user) {
 		this.user = user;
@@ -52,6 +52,10 @@ public class TotalRanking {
 		this.lastDayTotalAssets = 0L;
 		this.profitRate = 0.0;
 		this.totalRank = 0;
-		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void updateTime() {
+		this.updatedAt = LocalDateTime.now();
 	}
 }

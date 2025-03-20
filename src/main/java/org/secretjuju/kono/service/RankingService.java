@@ -67,12 +67,14 @@ public class RankingService {
 			// TotalRanking 업데이트
 			TotalRanking totalRanking = totalRankingRepository.findByUser(user).orElse(new TotalRanking(user));
 			totalRanking.setCurrentTotalAssets(currentAssets);
+			totalRanking.updateTime();
 			totalRankingRepository.save(totalRanking);
 
 			// DailyRanking 업데이트
 			DailyRanking dailyRanking = dailyRankingRepository.findByUser(user).orElse(new DailyRanking(user));
 			dailyRanking.setCurrentTotalAssets(currentAssets);
 			dailyRanking.setProfitRate(calculateProfitRate(currentAssets, dailyRanking.getLastDayTotalAssets()));
+			dailyRanking.updateTime();
 			dailyRankingRepository.save(dailyRanking);
 		}
 
@@ -80,6 +82,7 @@ public class RankingService {
 		List<TotalRanking> totalRankings = totalRankingRepository.findAllByOrderByCurrentTotalAssetsDesc();
 		for (int i = 0; i < totalRankings.size(); i++) {
 			totalRankings.get(i).setTotalRank(i + 1);
+			totalRankings.get(i).updateTime();
 		}
 		totalRankingRepository.saveAll(totalRankings);
 
@@ -87,6 +90,7 @@ public class RankingService {
 		List<DailyRanking> dailyRankings = dailyRankingRepository.findAllByOrderByProfitRateDesc();
 		for (int i = 0; i < dailyRankings.size(); i++) {
 			dailyRankings.get(i).setDailyRank(i + 1);
+			dailyRankings.get(i).updateTime();
 		}
 		dailyRankingRepository.saveAll(dailyRankings);
 
@@ -100,6 +104,7 @@ public class RankingService {
 		List<DailyRanking> dailyRankings = dailyRankingRepository.findAll();
 		for (DailyRanking ranking : dailyRankings) {
 			ranking.setLastDayTotalAssets(ranking.getCurrentTotalAssets());
+			ranking.updateTime();
 		}
 		dailyRankingRepository.saveAll(dailyRankings);
 

@@ -43,8 +43,8 @@ public class DailyRanking {
 	@Column(name = "daily_rank", columnDefinition = "INT DEFAULT 0")
 	private Integer dailyRank; // 일간 랭킹 순위
 
-	@Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime createdAt;
+	@Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+	private LocalDateTime updatedAt;
 
 	public DailyRanking(User user) {
 		this.user = user;
@@ -52,6 +52,10 @@ public class DailyRanking {
 		this.lastDayTotalAssets = 0L;
 		this.profitRate = 0.0;
 		this.dailyRank = 0;
-		this.createdAt = LocalDateTime.now();
+		this.updatedAt = LocalDateTime.now();
+	}
+
+	public void updateTime() {
+		this.updatedAt = LocalDateTime.now();
 	}
 }
