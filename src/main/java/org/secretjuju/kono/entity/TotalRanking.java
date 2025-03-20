@@ -13,8 +13,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "daily_ranking")
-public class DailyRanking {
+@Table(name = "total_ranking")
+public class TotalRanking {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -26,11 +26,14 @@ public class DailyRanking {
 	@Column(name = "current_total_assets", nullable = false, columnDefinition = "BIGINT UNSIGNED")
 	private Long currentTotalAssets; // 현재 총 자산
 
+	@Column(name = "last_day_total_assets", nullable = false, columnDefinition = "BIGINT UNSIGNED")
+	private Long lastDayTotalAssets; // 어제 23:59 기준 총 자산
+
 	@Column(name = "profit_rate", columnDefinition = "DOUBLE DEFAULT 0.0")
 	private Double profitRate; // 수익률
 
-	@Column(name = "daily_ranking", columnDefinition = "INT DEFAULT 0")
-	private Integer dailyRanking; // 일간 랭킹 순위
+	@Column(name = "total_ranking", columnDefinition = "INT DEFAULT 0")
+	private Integer totalRanking; // 전체 랭킹 순위
 
 	@Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
 	private LocalDateTime createdAt;
