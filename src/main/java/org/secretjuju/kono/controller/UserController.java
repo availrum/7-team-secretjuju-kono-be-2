@@ -84,14 +84,26 @@ public class UserController {
 
 	// 관심 코인 등록
 	@PostMapping("/favorites/{ticker}")
-	public ResponseEntity<Void> addFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
+	public ResponseEntity<Void> addFavoriteCoin(@AuthenticationPrincipal OAuth2User oauth2User,
+			@PathVariable String ticker) {
+		// 카카오 ID로부터 사용자 ID 조회
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		Integer userId = userService.getUserIdByKakaoId(kakaoId);
+
+		// 관심 코인 등록
 		coinFavoriteService.addFavoriteCoin(userId, ticker);
 		return ResponseEntity.ok().build();
 	}
 
 	// 관심 코인 삭제
 	@DeleteMapping("/favorites/{ticker}")
-	public ResponseEntity<Void> deleteFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
+	public ResponseEntity<Void> deleteFavoriteCoin(@AuthenticationPrincipal OAuth2User oauth2User,
+			@PathVariable String ticker) {
+		// 카카오 ID로부터 사용자 ID 조회
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		Integer userId = userService.getUserIdByKakaoId(kakaoId);
+
+		// 관심 코인 삭제
 		coinFavoriteService.deleteFavoriteCoin(userId, ticker);
 		return ResponseEntity.ok().build();
 	}

@@ -106,4 +106,10 @@ public class UserService {
 		}
 	}
 
+	// 카카오 ID로 사용자 ID 조회
+	public Integer getUserIdByKakaoId(Long kakaoId) {
+		User user = getUserByKakaoId(kakaoId);
+		return user.getId();
+	}
+
 }

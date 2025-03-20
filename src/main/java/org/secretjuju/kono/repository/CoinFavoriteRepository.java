@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 public interface CoinFavoriteRepository extends JpaRepository<CoinFavorite, Integer> {
 
 	// 특정 사용자의 모든 관심 코인 조회
-	List<CoinFavorite> findAllByUserId(Long kakaoId);
+	List<CoinFavorite> findAllByUserId(Integer userId);
 
 	// 특정 사용자의 특정 코인 관심 여부 조회
 	Optional<CoinFavorite> findByUserIdAndCoinInfoId(Integer userId, Integer coinInfoId);
