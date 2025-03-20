@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CoinTransactionRepository extends JpaRepository<CoinTransaction, Integer> {
-	// 특정 사용자의 거래 내역을 최신순으로 조회
+
 	List<CoinTransaction> findByUserOrderByCreatedAtDesc(User user);
 }
