@@ -15,10 +15,9 @@ public class UserResponseDto {
 	private Integer id;
 	private String nickname;
 	private String profile;
-	private String role;
 
 	public static UserResponseDto from(User user) {
 		return UserResponseDto.builder().id(user.getId()).nickname(user.getNickname())
-				.profile(user.getProfileImageUrl()).role(user.getRole()).build();
+				.profile(user.getProfileImageUrl()).build();
 	}
 }

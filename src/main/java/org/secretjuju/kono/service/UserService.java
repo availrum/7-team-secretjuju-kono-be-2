@@ -67,8 +67,14 @@ public class UserService {
 			Long kakaoId = Long.valueOf(oAuth2User.getAttribute("id").toString());
 			return getUserByKakaoId(kakaoId);
 		}
-
 		throw new RuntimeException("지원되지 않는 인증 방식입니다.");
+	}
+
+	public UserResponseDto getUserInfo(Long kakaoId) {
+		User user = getUserByKakaoId(kakaoId);
+
+		return UserResponseDto.builder().id(user.getId()).nickname(user.getNickname())
+				.profile(user.getProfileImageUrl()).build();
 	}
 
 	// 현재 로그인한 사용자 정보를 DTO로 반환

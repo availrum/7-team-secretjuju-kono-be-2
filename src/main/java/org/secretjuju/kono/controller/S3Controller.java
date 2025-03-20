@@ -24,7 +24,7 @@ public class S3Controller {
 	public void init() {
 		log.info("S3Controller initialized");
 	}
-
+	// presigned url 전송
 	@PostMapping("/presigned-url")
 	public ResponseEntity<PresignedUrlResponseDto> getPresignedUrl(@RequestBody PresignedUrlRequestDto request) {
 		log.info("Requesting presigned URL for file: {}", request.getFileName());

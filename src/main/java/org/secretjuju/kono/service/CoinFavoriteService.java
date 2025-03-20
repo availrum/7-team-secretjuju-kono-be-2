@@ -27,12 +27,12 @@ public class CoinFavoriteService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CoinInfo> findFavoriteCoinsByUserId(Integer userId) {
+	public List<CoinInfo> findFavoriteCoinsByUserId(Long kakaoId) {
 		// 사용자 존재 여부 확인
-		userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+		userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
 		// 사용자의 모든 관심 코인 조회
-		List<CoinFavorite> favorites = coinFavoriteRepository.findAllByUserId(userId);
+		List<CoinFavorite> favorites = coinFavoriteRepository.findAllByUserId(kakaoId);
 
 		if (favorites.isEmpty()) {
 			return new ArrayList<>();

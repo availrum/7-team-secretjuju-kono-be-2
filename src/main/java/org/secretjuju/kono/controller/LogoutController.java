@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/api/v1/auth")
 public class LogoutController {
 
+	// 로그이웃
 	@PostMapping("/logout")
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		// 현재 세션 삭제

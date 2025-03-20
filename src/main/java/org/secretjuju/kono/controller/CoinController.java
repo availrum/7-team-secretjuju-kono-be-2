@@ -17,6 +17,7 @@ public class CoinController {
 		this.coinService = coinService;
 	}
 
+	// 코인 특정 정보 조회?
 	@GetMapping("/{ticker}")
 	public CoinResponseDto getCoin(@PathVariable String ticker) {
 		CoinRequestDto coinRequestDto = new CoinRequestDto(ticker);
