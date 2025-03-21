@@ -1,7 +1,12 @@
 package org.secretjuju.kono.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.secretjuju.kono.dto.response.ApiResponseDto;
+import org.secretjuju.kono.dto.response.DailyRankingResponseDto;
+import org.secretjuju.kono.dto.response.TotalRankingResponseDto;
+import org.secretjuju.kono.entity.Badge;
 import org.secretjuju.kono.entity.DailyRanking;
 import org.secretjuju.kono.entity.TotalRanking;
 import org.secretjuju.kono.entity.User;
@@ -109,5 +114,49 @@ public class RankingService {
 		dailyRankingRepository.saveAll(dailyRankings);
 
 		log.info("어제 총 자산 업데이트 완료");
+	}
+
+	// 일간 랭킹 조회
+	public ApiResponseDto<DailyRankingResponseDto> getDailyRanking() {
+		// 일간 랭킹 상위 100개 조회
+		List<DailyRanking> dailyRankings = dailyRankingRepository.findTop100ByOrderByDailyRankAsc();
+
+		List<DailyRankingResponseDto.RankingItemDto> rankingItems = dailyRankings.stream().map(ranking -> {
+			User user = ranking.getUser();
+
+			// 뱃지 이미지 URL 리스트 가져오기
+			List<String> badgeImageUrls = user.getBadges().stream().map(Badge::getBadgeImageUrl)
+					.collect(Collectors.toList());
+
+			return DailyRankingResponseDto.RankingItemDto.builder().nickname(user.getNickname())
+					.profileImageUrl(user.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
+					.profitRate(ranking.getProfitRate()).rank(ranking.getDailyRank()).build();
+		}).collect(Collectors.toList());
+
+		DailyRankingResponseDto responseDto = DailyRankingResponseDto.builder().data(rankingItems).build();
+
+		return new ApiResponseDto<>("Daily ranking retrieved", responseDto);
+	}
+
+	// 전체 랭킹 조회
+	public ApiResponseDto<TotalRankingResponseDto> getTotalRanking() {
+		// 전체 랭킹 상위 100개 조회
+		List<TotalRanking> totalRankings = totalRankingRepository.findTop100ByOrderByTotalRankAsc();
+
+		List<TotalRankingResponseDto.RankingItemDto> rankingItems = totalRankings.stream().map(ranking -> {
+			User user = ranking.getUser();
+
+			// 뱃지 이미지 URL 리스트 가져오기
+			List<String> badgeImageUrls = user.getBadges().stream().map(Badge::getBadgeImageUrl)
+					.collect(Collectors.toList());
+
+			return TotalRankingResponseDto.RankingItemDto.builder().nickname(user.getNickname())
+					.profileImageUrl(user.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
+					.totalAssets(ranking.getCurrentTotalAssets()).rank(ranking.getTotalRank()).build();
+		}).collect(Collectors.toList());
+
+		TotalRankingResponseDto responseDto = TotalRankingResponseDto.builder().data(rankingItems).build();
+
+		return new ApiResponseDto<>("Total ranking retrieved", responseDto);
 	}
 }

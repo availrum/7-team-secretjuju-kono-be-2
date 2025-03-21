@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface DailyRankingRepository extends JpaRepository<DailyRanking, Long> {
 	Optional<DailyRanking> findByUser(User user);
 	List<DailyRanking> findAllByOrderByProfitRateDesc();
+	List<DailyRanking> findTop100ByOrderByDailyRankAsc();
 }

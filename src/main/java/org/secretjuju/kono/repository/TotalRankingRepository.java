@@ -12,4 +12,5 @@ import org.springframework.stereotype.Repository;
 public interface TotalRankingRepository extends JpaRepository<TotalRanking, Integer> {
 	Optional<TotalRanking> findByUser(User user);
 	List<TotalRanking> findAllByOrderByCurrentTotalAssetsDesc();
+	List<TotalRanking> findTop100ByOrderByTotalRankAsc();
 }
