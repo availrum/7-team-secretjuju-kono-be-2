@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.secretjuju.kono.security.CustomAuthenticationEntryPoint;
 import org.secretjuju.kono.service.OAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,42 +13,45 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 	private final OAuth2UserService oAuth2UserService;
 	private final ClientRegistrationRepository clientRegistrationRepository;
-
-	public SecurityConfig(OAuth2UserService oAuth2UserService,
-			ClientRegistrationRepository clientRegistrationRepository) {
-		this.oAuth2UserService = oAuth2UserService;
-		this.clientRegistrationRepository = clientRegistrationRepository;
-	}
+	private final ObjectMapper objectMapper;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
-				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-						.maximumSessions(1).expiredUrl("/login"))
-				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login").invalidateHttpSession(true)
-						.deleteCookies("JSESSIONID"))
+		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/", "/login", "/oauth2/**", "/css/**", "/images/**", "/js/**")
-								.permitAll().anyRequest().authenticated())
+						auth -> auth.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**")
+								.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.exceptionHandling(exceptionHandling -> exceptionHandling
+						.defaultAuthenticationEntryPointFor(new CustomAuthenticationEntryPoint(objectMapper),
+								new AntPathRequestMatcher("/api/**"))
+						.defaultAuthenticationEntryPointFor(new LoginUrlAuthenticationEntryPoint("/login"),
+								new AntPathRequestMatcher("/**")))
 				.oauth2Login(oauth2 -> oauth2.loginPage("/login")
 						.userInfoEndpoint(userInfo -> userInfo.userService(oAuth2UserService))
 						.successHandler(successHandler())

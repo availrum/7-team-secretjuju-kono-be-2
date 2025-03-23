@@ -13,6 +13,8 @@ import org.secretjuju.kono.entity.CoinHolding;
 import org.secretjuju.kono.entity.CoinInfo;
 import org.secretjuju.kono.entity.CoinTransaction;
 import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.PermissionDeniedException;
+import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.repository.CoinRepository;
 import org.secretjuju.kono.repository.CoinTransactionRepository;
 import org.secretjuju.kono.repository.UserRepository;
@@ -56,10 +58,24 @@ public class WalletService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CoinHoldingResponseDto> getCoinHoldings() {
-		User currentUser = userService.getCurrentUser();
-		return currentUser.getCoinHoldings().stream().map(this::convertToCoinHoldingResponse)
-				.collect(Collectors.toList());
+	public List<CoinHoldingResponseDto> getCoinHoldings(Long kakaoId) {
+		// 사용자 조회
+		User user = userService.getUserByKakaoId(kakaoId);
+		if (user == null) {
+			throw new UserNotFoundException("User not found with kakaoId: " + kakaoId);
+		}
+
+		// 권한 확인 (필요한 경우)
+		if (!hasPermission(user)) {
+			throw new PermissionDeniedException("Permission required to view coin holdings");
+		}
+
+		return user.getCoinHoldings().stream().map(this::convertToCoinHoldingResponse).collect(Collectors.toList());
+	}
+
+	private boolean hasPermission(User user) {
+		// 권한 확인 로직 구현
+		return true; // 기본적으로 허용
 	}
 
 	// 특정코인 보유여부와 보유하고있는 개수를 조회

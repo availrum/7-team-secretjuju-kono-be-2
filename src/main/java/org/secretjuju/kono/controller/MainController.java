@@ -39,7 +39,6 @@ public class MainController {
 
 			// 사용자 닉네임을 모델에 추가
 			model.addAttribute("nickname", userInfo.getNickname());
-			model.addAttribute("profileImage", userInfo.getProfile());
 
 			// 세션 정보 추가
 			model.addAttribute("session", new SessionInfo(session));

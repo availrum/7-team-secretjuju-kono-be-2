@@ -6,6 +6,7 @@ import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.NicknameAlreadyExistsException;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -37,11 +38,22 @@ public class UserService {
 
 	@Transactional
 	public UserResponseDto updateNickname(Long kakaoId, NicknameUpdateRequest request) {
-		User user = getUserByKakaoId(kakaoId);
-		user.setNickname(request.getNickname());
+		String newNickname = request.getNickname();
 
+		User user = userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new RuntimeException("User not found"));
+
+		// 닉네임 중복 체크 (현재 사용자 제외)
+		Optional<User> existingUser = userRepository.findByNickname(newNickname);
+
+		if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+			throw new NicknameAlreadyExistsException("Nickname already exists");
+		}
+
+		user.setNickname(newNickname);
 		User savedUser = userRepository.save(user);
-		return UserResponseDto.from(savedUser);
+
+		return UserResponseDto.builder().id(savedUser.getId()).nickname(savedUser.getNickname())
+				.profileImageUrl(savedUser.getProfileImageUrl()).createdAt(savedUser.getCreatedAt()).build();
 	}
 
 	// userId로 사용자 정보 조회
@@ -74,7 +86,7 @@ public class UserService {
 		User user = getUserByKakaoId(kakaoId);
 
 		return UserResponseDto.builder().id(user.getId()).nickname(user.getNickname())
-				.profile(user.getProfileImageUrl()).build();
+				.profileImageUrl(user.getProfileImageUrl()).build();
 	}
 
 	// 현재 로그인한 사용자 정보를 DTO로 반환
@@ -104,6 +116,14 @@ public class UserService {
 			log.error("회원탈퇴 처리 중 오류 발생: kakaoId={}", kakaoId, e);
 			throw new RuntimeException("회원탈퇴 처리 중 오류가 발생했습니다.", e);
 		}
+	}
+
+	/**
+	 * 사용자가 회원 탈퇴 권한이 있는지 확인합니다. 필요에 따라 구현하세요 (예: 관리자만 특정 사용자 탈퇴 가능 등)
+	 */
+	public boolean hasWithdrawPermission(User user) {
+		// 기본적으로는 자신의 계정만 탈퇴할 수 있도록 true 반환
+		return true;
 	}
 
 }

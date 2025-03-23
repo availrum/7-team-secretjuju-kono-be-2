@@ -7,6 +7,8 @@ import org.secretjuju.kono.dto.response.CashBalanceResponseDto;
 import org.secretjuju.kono.dto.response.CoinHoldingDetailResponseDto;
 import org.secretjuju.kono.dto.response.CoinHoldingResponseDto;
 import org.secretjuju.kono.dto.response.TransactionHistoryResponseDto;
+import org.secretjuju.kono.exception.UnauthorizedException;
+import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.service.WalletService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,10 +48,25 @@ public class WalletController {
 
 	@GetMapping("/coins")
 	public ResponseEntity<ApiResponseDto<List<CoinHoldingResponseDto>>> getCoinHoldings(
-			@AuthenticationPrincipal OAuth2User principal) {
-		log.info("Coin holdings requested by user ID: {}", principal.getAttribute("id").toString());
-		List<CoinHoldingResponseDto> coinHoldings = walletService.getCoinHoldings();
-		return ResponseEntity.ok(new ApiResponseDto<>("Coin holdings retrieved", coinHoldings));
+			@AuthenticationPrincipal OAuth2User oauth2User) {
+
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
+		}
+
+		try {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+			log.info("코인 보유량 조회 요청: kakaoId={}", kakaoId);
+
+			List<CoinHoldingResponseDto> coinHoldings = walletService.getCoinHoldings(kakaoId);
+			return ResponseEntity.ok(new ApiResponseDto<>("Coin holdings retrieved", coinHoldings));
+
+		} catch (UserNotFoundException e) {
+			throw e;
+		} catch (Exception e) {
+			log.error("코인 보유량 조회 중 오류 발생", e);
+			throw e;
+		}
 	}
 
 	@GetMapping("/coins/{ticker}")

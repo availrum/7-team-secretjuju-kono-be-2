@@ -4,9 +4,14 @@ import java.util.List;
 
 import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
-import org.secretjuju.kono.dto.response.FavoriteCoinsResponseDto;
+import org.secretjuju.kono.dto.response.ApiResponseDto;
+import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
-import org.secretjuju.kono.entity.CoinInfo;
+import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.NicknameAlreadyExistsException;
+import org.secretjuju.kono.exception.PermissionDeniedException;
+import org.secretjuju.kono.exception.UnauthorizedException;
+import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.service.CoinFavoriteService;
 import org.secretjuju.kono.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -53,47 +58,126 @@ public class UserController {
 	}
 
 	@PutMapping("/nickname")
-	public ResponseEntity<UserResponseDto> updateNickname(@AuthenticationPrincipal OAuth2User oauth2User,
-			@Valid @RequestBody NicknameUpdateRequest request) {
+	public ResponseEntity<ApiResponseDto<UserResponseDto>> updateNickname(
+			@AuthenticationPrincipal OAuth2User oauth2User, @Valid @RequestBody NicknameUpdateRequest request) {
+
 		if (oauth2User == null) {
-			return ResponseEntity.status(401).build();
+			throw new UnauthorizedException("Authentication required");
 		}
 
 		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		log.info("닉네임 업데이트 요청: kakaoId={}, newNickname={}", kakaoId, request.getNickname());
 
-		UserResponseDto updatedUser = userService.updateNickname(kakaoId, request);
-
-		return ResponseEntity.ok(updatedUser);
+		try {
+			UserResponseDto updatedUser = userService.updateNickname(kakaoId, request);
+			return ResponseEntity.ok(new ApiResponseDto<>("User information updated", updatedUser));
+		} catch (NicknameAlreadyExistsException e) {
+			throw e; // 글로벌 예외 핸들러로 전달
+		} catch (Exception e) {
+			log.error("닉네임 업데이트 중 오류 발생", e);
+			throw e; // 글로벌 예외 핸들러로 전달
+		}
 	}
 
 	@GetMapping("/favorites")
-	public ResponseEntity<FavoriteCoinsResponseDto> getUserFavorites(@AuthenticationPrincipal OAuth2User oauth2User) {
-		// 사용자의 관심 코인 목록 조회
-		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
-		List<CoinInfo> favoriteCoins = coinFavoriteService.findFavoriteCoinsByUserId(kakaoId);
+	public ResponseEntity<ApiResponseDto<List<CoinInfoResponseDto>>> getUserFavorites(
+			@AuthenticationPrincipal OAuth2User oauth2User) {
 
-		// 관심 코인이 없는 경우 204 No Content 반환
-		if (favoriteCoins == null || favoriteCoins.isEmpty()) {
-			return ResponseEntity.noContent().build();
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
 		}
 
-		// Entity를 응답 DTO로 변환
-		FavoriteCoinsResponseDto responseDto = FavoriteCoinsResponseDto.fromEntityList(favoriteCoins);
-		return ResponseEntity.ok(responseDto);
+		try {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+
+			// 사용자 정보 확인
+			User user = userService.getUserByKakaoId(kakaoId);
+			if (user == null) {
+				throw new UserNotFoundException("User not found with id: " + kakaoId);
+			}
+
+			// 관심 코인 목록 조회
+			List<CoinInfoResponseDto> favoriteCoins = coinFavoriteService.getFavoriteCoinsDto(user.getId());
+
+			// 빈 목록이어도 200 OK와 함께 빈 배열 반환
+			return ResponseEntity.ok(new ApiResponseDto<>("Favorite coin list retrieved", favoriteCoins));
+
+		} catch (UserNotFoundException e) {
+			throw e; // GlobalExceptionHandler로 전달
+		} catch (Exception e) {
+			log.error("관심 코인 조회 중 오류 발생: {}", e.getMessage(), e);
+			throw e;
+		}
 	}
 
 	// 관심 코인 등록
 	@PostMapping("/favorites/{ticker}")
-	public ResponseEntity<Void> addFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
-		coinFavoriteService.addFavoriteCoin(userId, ticker);
-		return ResponseEntity.ok().build();
+	public ResponseEntity<ApiResponseDto<Void>> addFavoriteCoin(@AuthenticationPrincipal OAuth2User oauth2User,
+			@PathVariable String ticker) {
+
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
+		}
+
+		try {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+			log.info("관심 코인 등록 요청: kakaoId={}, ticker={}", kakaoId, ticker);
+
+			// 사용자 정보 확인
+			User user = userService.getUserByKakaoId(kakaoId);
+			if (user == null) {
+				throw new UserNotFoundException("User not found with kakaoId: " + kakaoId);
+			}
+
+			coinFavoriteService.addFavoriteCoin(user.getId(), ticker);
+			return ResponseEntity.ok(new ApiResponseDto<>("Favorite coin added successfully", null));
+
+		} catch (UserNotFoundException e) {
+			throw e;
+			// 구체적인 exception 구현해야함
+		} catch (IllegalArgumentException e) {
+			log.error("관심 코인 등록 중 잘못된 인자: {}", e.getMessage());
+			throw e;
+		} catch (IllegalStateException e) {
+			log.error("관심 코인 등록 중 중복 오류: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("관심 코인 등록 중 오류 발생", e);
+			throw e;
+		}
 	}
 
 	// 관심 코인 삭제
 	@DeleteMapping("/favorites/{ticker}")
-	public ResponseEntity<Void> deleteFavoriteCoin(@RequestParam Integer userId, @PathVariable String ticker) {
-		coinFavoriteService.deleteFavoriteCoin(userId, ticker);
-		return ResponseEntity.ok().build();
+	public ResponseEntity<ApiResponseDto<Void>> deleteFavoriteCoin(@AuthenticationPrincipal OAuth2User oauth2User,
+			@PathVariable String ticker) {
+
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
+		}
+
+		try {
+			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+			log.info("관심 코인 삭제 요청: kakaoId={}, ticker={}", kakaoId, ticker);
+
+			// 사용자 정보 확인
+			User user = userService.getUserByKakaoId(kakaoId);
+			if (user == null) {
+				throw new UserNotFoundException("User not found with kakaoId: " + kakaoId);
+			}
+
+			coinFavoriteService.deleteFavoriteCoin(user.getId(), ticker);
+			return ResponseEntity.ok(new ApiResponseDto<>("Favorite coin removed successfully", null));
+
+		} catch (UserNotFoundException e) {
+			throw e;
+		} catch (IllegalArgumentException e) {
+			log.error("관심 코인 삭제 중 잘못된 인자: {}", e.getMessage());
+			throw e;
+		} catch (Exception e) {
+			log.error("관심 코인 삭제 중 오류 발생", e);
+			throw e;
+		}
 	}
 	// 회원 탈퇴
 	@DeleteMapping("/withdraw")
@@ -105,6 +189,15 @@ public class UserController {
 		try {
 			Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
 			log.info("회원탈퇴 요청: kakaoId={}", kakaoId);
+			// 사용자의 존재여부 확인
+			User user = userService.getUserByKakaoId(kakaoId);
+			if (user == null) {
+				throw new UserNotFoundException("User not found with kakaoId: " + kakaoId);
+			}
+			// 탈퇴 권한을 갖고있지 않을떄 (탈퇴하려는 회원이 자신인지 검토)
+			if (!userService.hasWithdrawPermission(user)) {
+				throw new PermissionDeniedException("Permission required");
+			}
 
 			// UserService의 withdrawUser 메서드 호출
 			userService.withdrawUser(kakaoId);
@@ -112,7 +205,8 @@ public class UserController {
 			// 세션 무효화
 			session.invalidate();
 
-			return ResponseEntity.ok().build();
+			// 204 No Content 응답
+			return ResponseEntity.noContent().build();
 
 		} catch (Exception e) {
 			log.error("회원탈퇴 처리 중 오류 발생", e);

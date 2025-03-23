@@ -9,8 +9,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 
 @Controller
+
 @RequestMapping("/login")
 @Slf4j
+
 public class LoginController {
 	@GetMapping("")
 	public String login(HttpServletRequest request) {
@@ -22,7 +24,7 @@ public class LoginController {
 	}
 
 	// 루트 경로는 로그인으로
-	@GetMapping("/")
+	@GetMapping("")
 	public String root() {
 		return "redirect:/login";
 	}

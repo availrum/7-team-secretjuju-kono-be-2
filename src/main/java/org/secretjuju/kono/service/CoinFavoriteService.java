@@ -1,12 +1,13 @@
 package org.secretjuju.kono.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
 import org.secretjuju.kono.entity.CoinFavorite;
 import org.secretjuju.kono.entity.CoinInfo;
 import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.repository.CoinFavoriteRepository;
 import org.secretjuju.kono.repository.CoinInfoRepository;
 import org.secretjuju.kono.repository.UserRepository;
@@ -27,19 +28,28 @@ public class CoinFavoriteService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CoinInfo> findFavoriteCoinsByUserId(Long kakaoId) {
-		// 사용자 존재 여부 확인
-		userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-		// 사용자의 모든 관심 코인 조회
-		List<CoinFavorite> favorites = coinFavoriteRepository.findAllByUserId(kakaoId);
-
-		if (favorites.isEmpty()) {
-			return new ArrayList<>();
+	public List<CoinInfoResponseDto> getFavoriteCoinsDto(Integer userId) {
+		// 사용자 존재 확인
+		boolean userExists = userRepository.existsById(userId);
+		if (!userExists) {
+			throw new UserNotFoundException("User not found with id: " + userId);
 		}
 
-		// 관심 코인 정보 조회
-		return favorites.stream().map(CoinFavorite::getCoinInfo).collect(Collectors.toList());
+		// 관심 코인 조회 (메서드 이름 변경됨)
+		List<CoinInfo> favoriteCoins = coinFavoriteRepository.findAllCoinInfosByUserId(userId);
+
+		// Entity를 DTO로 변환
+		return favoriteCoins.stream().map(coin -> new CoinInfoResponseDto(coin.getTicker(), coin.getKrCoinName()))
+				.collect(Collectors.toList());
+	}
+
+	@Transactional(readOnly = true)
+	public List<CoinInfo> findFavoriteCoinsByUserId(Integer userId) {
+		if (userId == null) {
+			throw new IllegalArgumentException("User ID cannot be null");
+		}
+
+		return coinFavoriteRepository.findAllCoinInfosByUserId(userId);
 	}
 
 	@Transactional

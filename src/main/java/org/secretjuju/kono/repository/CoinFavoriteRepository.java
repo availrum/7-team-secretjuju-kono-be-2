@@ -4,14 +4,18 @@ import java.util.List;
 import java.util.Optional;
 
 import org.secretjuju.kono.entity.CoinFavorite;
+import org.secretjuju.kono.entity.CoinInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CoinFavoriteRepository extends JpaRepository<CoinFavorite, Integer> {
 
 	// 특정 사용자의 모든 관심 코인 조회
-	List<CoinFavorite> findAllByUserId(Long kakaoId);
+	@Query("SELECT cf.coinInfo FROM CoinFavorite cf WHERE cf.user.id = :userId")
+	List<CoinInfo> findAllCoinInfosByUserId(@Param("userId") Integer userId);
 
 	// 특정 사용자의 특정 코인 관심 여부 조회
 	Optional<CoinFavorite> findByUserIdAndCoinInfoId(Integer userId, Integer coinInfoId);
