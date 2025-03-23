@@ -2,6 +2,7 @@ package org.secretjuju.kono.controller;
 
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.CoinSellBuyRequestDto;
+import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.CoinResponseDto;
 import org.secretjuju.kono.service.CoinService;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,9 @@ public class CoinController {
 	}
 
 	@PostMapping("/orders")
-	public ResponseEntity<Void> createCoinOrder(@RequestBody CoinSellBuyRequestDto coinSellBuyRequestDto) {
+	public ResponseEntity<ApiResponseDto<Object>> createCoinOrder(
+			@RequestBody CoinSellBuyRequestDto coinSellBuyRequestDto) {
 		coinService.createCoinOrder(coinSellBuyRequestDto);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(new ApiResponseDto<>("Authentication required", null));
 	}
 }

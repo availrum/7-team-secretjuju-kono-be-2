@@ -52,7 +52,7 @@ public class UserService {
 		user.setNickname(newNickname);
 		User savedUser = userRepository.save(user);
 
-		return UserResponseDto.builder().id(savedUser.getId()).nickname(savedUser.getNickname())
+		return UserResponseDto.builder().nickname(savedUser.getNickname())
 				.profileImageUrl(savedUser.getProfileImageUrl()).createdAt(savedUser.getCreatedAt()).build();
 	}
 
@@ -85,8 +85,8 @@ public class UserService {
 	public UserResponseDto getUserInfo(Long kakaoId) {
 		User user = getUserByKakaoId(kakaoId);
 
-		return UserResponseDto.builder().id(user.getId()).nickname(user.getNickname())
-				.profileImageUrl(user.getProfileImageUrl()).build();
+		return UserResponseDto.builder().nickname(user.getNickname()).profileImageUrl(user.getProfileImageUrl())
+				.build();
 	}
 
 	// 현재 로그인한 사용자 정보를 DTO로 반환

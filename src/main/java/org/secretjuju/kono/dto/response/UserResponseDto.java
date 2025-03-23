@@ -11,19 +11,17 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class UserResponseDto {
-	private Integer id;
 	private String nickname;
 	private String profileImageUrl;
 	private LocalDateTime createdAt;
 
 	public static UserResponseDto from(User user) {
-		return UserResponseDto.builder().id(user.getId()).nickname(user.getNickname())
-				.profileImageUrl(user.getProfileImageUrl()).createdAt(user.getCreatedAt()).build();
+		return UserResponseDto.builder().nickname(user.getNickname()).profileImageUrl(user.getProfileImageUrl())
+				.createdAt(user.getCreatedAt()).build();
 	}
 
 	@Builder
-	public UserResponseDto(Integer id, String nickname, String profileImageUrl, LocalDateTime createdAt) {
-		this.id = id;
+	public UserResponseDto(String nickname, String profileImageUrl, LocalDateTime createdAt) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
 		this.createdAt = createdAt;
