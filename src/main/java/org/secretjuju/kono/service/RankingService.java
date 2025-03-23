@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.secretjuju.kono.dto.response.DailyRankingResponseDto;
 import org.secretjuju.kono.dto.response.TotalRankingResponseDto;
 import org.secretjuju.kono.entity.Badge;
+import org.secretjuju.kono.entity.CashBalance;
 import org.secretjuju.kono.entity.DailyRanking;
 import org.secretjuju.kono.entity.TotalRanking;
 import org.secretjuju.kono.entity.User;
@@ -39,7 +40,20 @@ public class RankingService {
 	// 사용자의 총 자산 계산
 	private Long calculateTotalAssets(User user) {
 		// 현금 잔액
-		Long cashBalance = user.getCashBalance().getBalance();
+		Long cashBalance = 0L;
+		if (user.getCashBalance() != null) {
+			cashBalance = user.getCashBalance().getBalance();
+		} else {
+			// CashBalance가 없는 사용자에게 새로운 CashBalance 생성
+			CashBalance newCashBalance = new CashBalance();
+			newCashBalance.setUser(user);
+			newCashBalance.setBalance(10000000L);
+			newCashBalance.setTotalInvest(0L);
+			cashBalanceRepository.save(newCashBalance);
+			user.setCashBalance(newCashBalance);
+			log.warn("사용자 ID: {}에 CashBalance가 없어 새로 생성했습니다.", user.getId());
+			cashBalance = newCashBalance.getBalance();
+		}
 
 		// 코인 자산
 		Long coinAssets = coinHoldingRepository.findByUser(user).stream().map(holding -> {

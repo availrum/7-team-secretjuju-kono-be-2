@@ -98,4 +98,5 @@ public class User {
 		this.coinFavorites.add(coinFavorite);
 		coinFavorite.setUser(this);
 	}
+
 }
