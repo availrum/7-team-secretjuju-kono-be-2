@@ -12,17 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TotalRankingResponseDto {
-	private List<RankingItemDto> data;
-
-	@Getter
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class RankingItemDto {
-		private String nickname;
-		private String profileImageUrl;
-		private List<String> badgeImageUrl;
-		private Long totalAssets;
-		private int rank;
-	}
+	private String nickname;
+	private String profileImageUrl;
+	private List<String> badgeImageUrl;
+	private Long totalAssets;
+	private int rank;
 }

@@ -3,7 +3,6 @@ package org.secretjuju.kono.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.DailyRankingResponseDto;
 import org.secretjuju.kono.dto.response.TotalRankingResponseDto;
 import org.secretjuju.kono.entity.Badge;
@@ -16,8 +15,8 @@ import org.secretjuju.kono.repository.DailyRankingRepository;
 import org.secretjuju.kono.repository.TotalRankingRepository;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -117,46 +116,33 @@ public class RankingService {
 	}
 
 	// 일간 랭킹 조회
-	public ApiResponseDto<DailyRankingResponseDto> getDailyRanking() {
+	@Transactional(readOnly = true)
+	public List<DailyRankingResponseDto> getDailyRanking() {
 		// 일간 랭킹 상위 100개 조회
 		List<DailyRanking> dailyRankings = dailyRankingRepository.findTop100ByOrderByDailyRankAsc();
 
-		List<DailyRankingResponseDto.RankingItemDto> rankingItems = dailyRankings.stream().map(ranking -> {
-			User user = ranking.getUser();
-
-			// 뱃지 이미지 URL 리스트 가져오기
-			List<String> badgeImageUrls = user.getBadges().stream().map(Badge::getBadgeImageUrl)
-					.collect(Collectors.toList());
-
-			return DailyRankingResponseDto.RankingItemDto.builder().nickname(user.getNickname())
-					.profileImageUrl(user.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
-					.profitRate(ranking.getProfitRate()).rank(ranking.getDailyRank()).build();
-		}).collect(Collectors.toList());
-
-		DailyRankingResponseDto responseDto = DailyRankingResponseDto.builder().data(rankingItems).build();
-
-		return new ApiResponseDto<>("Daily ranking retrieved", responseDto);
+		return dailyRankings.stream().map(this::convertToDailyRankingResponse).collect(Collectors.toList());
 	}
 
 	// 전체 랭킹 조회
-	public ApiResponseDto<TotalRankingResponseDto> getTotalRanking() {
+	public List<TotalRankingResponseDto> getTotalRanking() {
 		// 전체 랭킹 상위 100개 조회
 		List<TotalRanking> totalRankings = totalRankingRepository.findTop100ByOrderByTotalRankAsc();
 
-		List<TotalRankingResponseDto.RankingItemDto> rankingItems = totalRankings.stream().map(ranking -> {
-			User user = ranking.getUser();
+		return totalRankings.stream().map(this::convertToTotalRankingResponse).collect(Collectors.toList());
+	}
 
-			// 뱃지 이미지 URL 리스트 가져오기
-			List<String> badgeImageUrls = user.getBadges().stream().map(Badge::getBadgeImageUrl)
-					.collect(Collectors.toList());
+	private DailyRankingResponseDto convertToDailyRankingResponse(DailyRanking dailyRanking) {
+		return new DailyRankingResponseDto(dailyRanking.getUser().getNickname(),
+				dailyRanking.getUser().getProfileImageUrl(),
+				dailyRanking.getUser().getBadges().stream().map(Badge::getBadgeImageUrl).collect(Collectors.toList()),
+				dailyRanking.getProfitRate(), dailyRanking.getDailyRank());
+	}
 
-			return TotalRankingResponseDto.RankingItemDto.builder().nickname(user.getNickname())
-					.profileImageUrl(user.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
-					.totalAssets(ranking.getCurrentTotalAssets()).rank(ranking.getTotalRank()).build();
-		}).collect(Collectors.toList());
-
-		TotalRankingResponseDto responseDto = TotalRankingResponseDto.builder().data(rankingItems).build();
-
-		return new ApiResponseDto<>("Total ranking retrieved", responseDto);
+	private TotalRankingResponseDto convertToTotalRankingResponse(TotalRanking totalRanking) {
+		return new TotalRankingResponseDto(totalRanking.getUser().getNickname(),
+				totalRanking.getUser().getProfileImageUrl(),
+				totalRanking.getUser().getBadges().stream().map(Badge::getBadgeImageUrl).collect(Collectors.toList()),
+				totalRanking.getCurrentTotalAssets(), totalRanking.getTotalRank());
 	}
 }

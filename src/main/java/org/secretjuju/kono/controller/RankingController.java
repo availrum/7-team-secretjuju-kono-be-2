@@ -1,5 +1,7 @@
 package org.secretjuju.kono.controller;
 
+import java.util.List;
+
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.DailyRankingResponseDto;
 import org.secretjuju.kono.dto.response.TotalRankingResponseDto;
@@ -19,14 +21,16 @@ public class RankingController {
 	private final RankingService rankingService;
 
 	@GetMapping
-	public ResponseEntity<ApiResponseDto<TotalRankingResponseDto>> getTotalRanking() {
-		ApiResponseDto<TotalRankingResponseDto> response = rankingService.getTotalRanking();
-		return ResponseEntity.ok(response);
+	public ResponseEntity<ApiResponseDto<List<TotalRankingResponseDto>>> getTotalRanking() {
+
+		List<TotalRankingResponseDto> totalRankingResponseDtoList = rankingService.getTotalRanking();
+		return ResponseEntity.ok(new ApiResponseDto<>("Total ranking retrieved", totalRankingResponseDtoList));
 	}
 
 	@GetMapping("/daily")
-	public ResponseEntity<ApiResponseDto<DailyRankingResponseDto>> getDailyRanking() {
-		ApiResponseDto<DailyRankingResponseDto> response = rankingService.getDailyRanking();
-		return ResponseEntity.ok(response);
+	public ResponseEntity<ApiResponseDto<List<DailyRankingResponseDto>>> getDailyRanking() {
+
+		List<DailyRankingResponseDto> dailyRankingResponseDtoList = rankingService.getDailyRanking();
+		return ResponseEntity.ok(new ApiResponseDto<>("Daily ranking retrieved", dailyRankingResponseDtoList));
 	}
 }
