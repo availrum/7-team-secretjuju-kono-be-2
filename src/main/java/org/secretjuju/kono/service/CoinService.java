@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.CoinSellBuyRequestDto;
 import org.secretjuju.kono.dto.response.CoinResponseDto;
+import org.secretjuju.kono.dto.response.TickerResponse;
 import org.secretjuju.kono.entity.CashBalance;
 import org.secretjuju.kono.entity.CoinHolding;
 import org.secretjuju.kono.entity.CoinInfo;
@@ -20,16 +21,26 @@ public class CoinService {
 
 	private final CoinRepository coinRepository;
 	private final UserService userService;
+	private final UpbitService upbitService;
 
-	public CoinService(CoinRepository coinRepository, UserService userService) {
+	public CoinService(CoinRepository coinRepository, UserService userService, UpbitService upbitService) {
 		this.coinRepository = coinRepository;
 		this.userService = userService;
+		this.upbitService = upbitService;
 	}
 
 	public CoinResponseDto getCoinByName(CoinRequestDto coinRequestDto) {
 		Optional<CoinInfo> coinInfo = coinRepository.findByTicker(coinRequestDto.getTicker());
 		CoinResponseDto coinResponseDto = new CoinResponseDto(coinInfo.orElse(null));
 		return coinResponseDto;
+	}
+
+	// 현재가 조회 메소드
+	public Double getCurrentPrice(String ticker) {
+		// 이미 "KRW-"로 시작하는 경우 그대로 사용, 아니면 "KRW-" 접두사 추가
+		String market = ticker.startsWith("KRW-") ? ticker : "KRW-" + ticker;
+		TickerResponse tickerResponse = upbitService.getTicker(market);
+		return tickerResponse.getTrade_price();
 	}
 
 	@Transactional
@@ -43,6 +54,33 @@ public class CoinService {
 			throw new RuntimeException("해당 코인을 찾을 수 없습니다.");
 		}
 		CoinInfo coinInfo = coinInfoOpt.get();
+
+		// 업비트에서 현재가 조회
+		Double currentPrice = getCurrentPrice(coinSellBuyRequestDto.getTicker());
+
+		// 현재가 설정
+		coinSellBuyRequestDto.setOrderPrice(currentPrice);
+
+		// orderAmount가 null인 경우 체크
+		if (coinSellBuyRequestDto.getOrderAmount() == null) {
+			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
+			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
+				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);
+				coinSellBuyRequestDto.setOrderAmount(calculatedAmount);
+			} else {
+
+				coinSellBuyRequestDto.setOrderAmount(100000L);
+			}
+		}
+
+		// 주문 금액을 현재가로 나눠서 코인 수량 계산
+		Double orderQuantity = coinSellBuyRequestDto.getOrderAmount() / currentPrice;
+		// 소수점 8자리까지만 계산 (Bitcoin 최소 단위)
+		orderQuantity = Math.floor(orderQuantity * 100000000) / 100000000;
+		coinSellBuyRequestDto.setOrderQuantity(orderQuantity);
+
+		// 주문 유효성 검사 및 조정
+		validateAndAdjustOrder(currentUser, coinSellBuyRequestDto, coinInfo);
 
 		// 거래 내역을 기록합니다.
 		CoinTransaction transaction = new CoinTransaction();
@@ -64,6 +102,52 @@ public class CoinService {
 			processSell(currentUser, coinInfo, coinSellBuyRequestDto);
 		} else {
 			throw new RuntimeException("유효하지 않은 거래 타입입니다.");
+		}
+	}
+
+	// 주문 유효성 검사 및 조정
+	private void validateAndAdjustOrder(User user, CoinSellBuyRequestDto request, CoinInfo coinInfo) {
+		if ("buy".equalsIgnoreCase(request.getOrderType())) {
+			// 구매 시 유효성 검사
+			CashBalance cashBalance = user.getCashBalance();
+			if (cashBalance == null) {
+				throw new RuntimeException("현금 잔액 정보가 없습니다.");
+			}
+
+			// 보유 현금보다 주문 금액이 큰 경우 오류
+			if (cashBalance.getBalance() < request.getOrderAmount()) {
+				throw new RuntimeException("현금 잔액이 부족합니다. 현재 잔액: " + cashBalance.getBalance());
+			}
+
+			// 최소 주문금액 확인
+			if (request.getOrderAmount() < 5000) {
+				throw new RuntimeException("최소 주문 수량은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
+			}
+
+		} else if ("sell".equalsIgnoreCase(request.getOrderType())) {
+			// 판매 시 유효성 검사
+			Optional<CoinHolding> existingHolding = user.getCoinHoldings().stream()
+					.filter(holding -> holding.getCoinInfo().getId().equals(coinInfo.getId())).findFirst();
+
+			if (existingHolding.isEmpty()) {
+				throw new RuntimeException("판매할 코인을 보유하고 있지 않습니다.");
+			}
+
+			// 보유 수량보다 많이 판매하려고 하면 보유 수량으로 조정
+			if (existingHolding.get().getHoldingQuantity() < request.getOrderQuantity()) {
+				Double availableQuantity = existingHolding.get().getHoldingQuantity();
+				request.setOrderQuantity(availableQuantity);
+				// 주문 금액도 다시 계산
+				request.setOrderAmount(Math.round(request.getOrderPrice() * availableQuantity));
+
+				if (request.getOrderQuantity() < 0) {
+					throw new RuntimeException("판매할 코인이 없습니다.");
+				}
+			}
+
+			if (request.getOrderQuantity() <= 0) {
+				throw new RuntimeException("최소 주문 수량은 0이 될 수없습니다. 현재 주문 수량: " + request.getOrderQuantity());
+			}
 		}
 	}
 

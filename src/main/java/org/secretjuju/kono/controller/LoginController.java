@@ -24,7 +24,7 @@ public class LoginController {
 	}
 
 	// 루트 경로는 로그인으로
-	@GetMapping("")
+	@GetMapping("/")
 	public String root() {
 		return "redirect:/login";
 	}

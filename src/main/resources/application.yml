@@ -70,3 +70,8 @@ server:
         http-only: true
         secure: false  # HTTPS 사용시 true로 변경
       tracking-modes: cookie  # URL 재작성 비활성화
+
+# 업비트 API 설정
+upbit:
+  api:
+    url: https://api.upbit.com/v1
