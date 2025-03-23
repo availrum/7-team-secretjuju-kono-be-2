@@ -12,6 +12,7 @@ import org.secretjuju.kono.entity.CoinHolding;
 import org.secretjuju.kono.entity.CoinInfo;
 import org.secretjuju.kono.entity.CoinTransaction;
 import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.CustomException;
 import org.secretjuju.kono.repository.CoinRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,7 +52,7 @@ public class CoinService {
 		// 해당 코인 정보를 가져옵니다.
 		Optional<CoinInfo> coinInfoOpt = coinRepository.findByTicker(coinSellBuyRequestDto.getTicker());
 		if (coinInfoOpt.isEmpty()) {
-			throw new RuntimeException("해당 코인을 찾을 수 없습니다.");
+			throw new CustomException(404, "해당 코인을 찾을 수 없습니다.");
 		}
 		CoinInfo coinInfo = coinInfoOpt.get();
 
@@ -101,7 +102,7 @@ public class CoinService {
 			// 판매 시 처리
 			processSell(currentUser, coinInfo, coinSellBuyRequestDto);
 		} else {
-			throw new RuntimeException("유효하지 않은 거래 타입입니다.");
+			throw new CustomException(401, "유효하지 않은 거래 타입입니다.");
 		}
 	}
 
@@ -111,17 +112,17 @@ public class CoinService {
 			// 구매 시 유효성 검사
 			CashBalance cashBalance = user.getCashBalance();
 			if (cashBalance == null) {
-				throw new RuntimeException("현금 잔액 정보가 없습니다.");
+				throw new CustomException(404, "현금 잔액 정보가 없습니다.");
 			}
 
 			// 보유 현금보다 주문 금액이 큰 경우 오류
 			if (cashBalance.getBalance() < request.getOrderAmount()) {
-				throw new RuntimeException("현금 잔액이 부족합니다. 현재 잔액: " + cashBalance.getBalance());
+				throw new CustomException(401, "현금 잔액이 부족합니다. 현재 잔액: " + cashBalance.getBalance());
 			}
 
 			// 최소 주문금액 확인
 			if (request.getOrderAmount() < 5000) {
-				throw new RuntimeException("최소 주문 수량은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
+				throw new CustomException(400, "최소 주문 금액은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
 			}
 
 		} else if ("sell".equalsIgnoreCase(request.getOrderType())) {
@@ -130,7 +131,7 @@ public class CoinService {
 					.filter(holding -> holding.getCoinInfo().getId().equals(coinInfo.getId())).findFirst();
 
 			if (existingHolding.isEmpty()) {
-				throw new RuntimeException("판매할 코인을 보유하고 있지 않습니다.");
+				throw new CustomException(403, "판매할 코인을 보유하고 있지 않습니다.");
 			}
 
 			// 보유 수량보다 많이 판매하려고 하면 보유 수량으로 조정
@@ -141,12 +142,12 @@ public class CoinService {
 				request.setOrderAmount(Math.round(request.getOrderPrice() * availableQuantity));
 
 				if (request.getOrderQuantity() < 0) {
-					throw new RuntimeException("판매할 코인이 없습니다.");
+					throw new CustomException(404, "판매할 코인이 없습니다.");
 				}
 			}
 
 			if (request.getOrderQuantity() <= 0) {
-				throw new RuntimeException("최소 주문 수량은 0이 될 수없습니다. 현재 주문 수량: " + request.getOrderQuantity());
+				throw new CustomException(400, "최소 주문 수량은 0이 될 수없습니다. 현재 주문 수량: " + request.getOrderQuantity());
 			}
 		}
 	}
@@ -161,7 +162,7 @@ public class CoinService {
 
 		// 현금 잔액이 충분한지 확인
 		if (cashBalance.getBalance() < request.getOrderAmount()) {
-			throw new RuntimeException("현금 잔액이 부족합니다.");
+			throw new CustomException(403, "현금 잔액이 부족합니다. 현재 잔액: " + cashBalance.getBalance());
 		}
 
 		// 현금 잔액 감소
@@ -192,7 +193,9 @@ public class CoinService {
 				.filter(holding -> holding.getCoinInfo().getId().equals(coinInfo.getId())).findFirst();
 
 		if (existingHolding.isEmpty() || existingHolding.get().getHoldingQuantity() < request.getOrderQuantity()) {
-			throw new RuntimeException("코인 보유량이 부족합니다.");
+			throw new CustomException(403, "코인 보유량이 부족합니다.");
+		} else if (request.getOrderAmount() < 5000) {
+			throw new CustomException(400, "최소 주문 금액은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
 		}
 
 		// 코인 보유량 감소

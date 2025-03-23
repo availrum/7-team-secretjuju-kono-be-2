@@ -1,5 +1,7 @@
 package org.secretjuju.kono.exception;
 
+import java.util.Map;
+
 import org.apache.coyote.BadRequestException;
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.springframework.http.HttpStatus;
@@ -13,7 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
+	@ExceptionHandler(CustomException.class)
+	public ResponseEntity<?> handleCustomException(CustomException ex) {
+		return ResponseEntity.status(ex.getStatus()).body(Map.of("message", ex.getMessage()));
+	}
 	@ExceptionHandler(NicknameAlreadyExistsException.class)
 	public ResponseEntity<ApiResponseDto<Object>> handleNicknameAlreadyExistsException(
 			NicknameAlreadyExistsException e) {

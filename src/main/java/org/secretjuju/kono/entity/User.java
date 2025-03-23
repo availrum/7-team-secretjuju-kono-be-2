@@ -58,7 +58,7 @@ public class User {
 	private List<Badge> badges = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<CoinHolding> coinHoldings = new ArrayList<>();
 
 	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
