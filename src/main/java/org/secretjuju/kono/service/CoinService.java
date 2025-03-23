@@ -120,7 +120,7 @@ public class CoinService {
 			}
 
 			// 최소 주문금액 확인
-			if (request.getOrderAmount() < 5001) {
+			if (request.getOrderAmount() < 5000) {
 				throw new RuntimeException("최소 주문 수량은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
 			}
 
@@ -140,7 +140,7 @@ public class CoinService {
 				// 주문 금액도 다시 계산
 				request.setOrderAmount(Math.round(request.getOrderPrice() * availableQuantity));
 
-				if (request.getOrderQuantity() <= 0) {
+				if (request.getOrderQuantity() < 0) {
 					throw new RuntimeException("판매할 코인이 없습니다.");
 				}
 			}
