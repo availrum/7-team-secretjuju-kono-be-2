@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class UserRequestDto {
-	private int id;
+	private long id;
 
-	public UserRequestDto(int id) {
-		this.id = id;
+	public UserRequestDto(long kakaoid) {
+		this.id = kakaoid;
 	}
 }
