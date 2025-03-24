@@ -21,9 +21,9 @@ public class UpbitService {
 
 	public TickerResponse getTicker(String market) {
 		String url = upbitApiUrl + "/ticker?markets=" + market;
-		ResponseEntity<TickerResponse[]> response = restTemplate.getForEntity(url, TickerResponse[].class);
+		ResponseEntity<TickerResponse> response = restTemplate.getForEntity(url, TickerResponse.class);
 		if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-			return response.getBody()[0];
+			return response.getBody();
 		} else {
 			throw new RuntimeException("업비트 API 호출 실패");
 		}
