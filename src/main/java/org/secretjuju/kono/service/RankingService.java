@@ -30,6 +30,7 @@ public class RankingService {
 	private final DailyRankingRepository dailyRankingRepository;
 	private final CoinHoldingRepository coinHoldingRepository;
 	private final CashBalanceRepository cashBalanceRepository;
+	private final UserService userService;
 
 	// 코인의 현재 가격을 가져오는 함수 (가정)
 	private Double getCurrentCoinPrice(String ticker) {
@@ -144,6 +145,18 @@ public class RankingService {
 		List<TotalRanking> totalRankings = totalRankingRepository.findTop100ByOrderByTotalRankAsc();
 
 		return totalRankings.stream().map(this::convertToTotalRankingResponse).collect(Collectors.toList());
+	}
+
+	// 현재 사용자의 일간 랭킹 조회
+	public DailyRankingResponseDto getCurrentUserDailyRanking() {
+		User currentUser = userService.getCurrentUser();
+		return new DailyRankingResponseDto();
+	}
+
+	// 현재 사용자의 전체 랭킹 조회
+	public TotalRankingResponseDto getCurrentUserTotalRanking() {
+		User currentUser = userService.getCurrentUser();
+		return new TotalRankingResponseDto();
 	}
 
 	private DailyRankingResponseDto convertToDailyRankingResponse(DailyRanking dailyRanking) {
