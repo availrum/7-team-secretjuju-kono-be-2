@@ -2,30 +2,35 @@ name: Backend CI/CD
 
 on:
   push:
-    branches: [develop]
+    branches: [ "develop" ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Login to DockerHub
-        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+    - name: Login to DockerHub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
-        run: docker build -t gjlee97/my-backend:latest .
+    - name: Build Docker image
+      run: docker build -t gjlee97/my-backend:latest .
 
-      - name: Push Docker image
-        run: docker push gjlee97/my-backend:latest
+    - name: Push Docker image
+      run: docker push gjlee97/my-backend:latest
 
-      - name: Deploy to EC2
-        run: |
-          ssh -i ${{ secrets.SSH_KEY }} -o StrictHostKeyChecking=no ubuntu@3.36.226.164 << EOF
-            cd /home/ubuntu/app/backend/
-            docker-compose pull
-            docker-compose down
-            docker-compose up -d
-          EOF
+    - name: Setup SSH Key (base64 decode)
+      run: |
+        echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
+        chmod 400 key.pem
+
+    - name: SSH & Deploy on EC2
+      run: |
+        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@3.36.226.164 << EOF
+          cd /home/ubuntu/app/backend/
+          docker-compose pull
+          docker-compose down
+          docker-compose up -d
+        EOF
