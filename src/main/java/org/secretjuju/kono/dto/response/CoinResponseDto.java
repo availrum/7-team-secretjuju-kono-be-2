@@ -13,5 +13,4 @@ public class CoinResponseDto {
 		this.ticker = coinInfo.getTicker();
 		this.kr_coin_name = coinInfo.getKrCoinName();
 	}
-
 }
