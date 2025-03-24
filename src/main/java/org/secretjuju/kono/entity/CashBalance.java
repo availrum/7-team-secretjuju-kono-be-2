@@ -30,8 +30,4 @@ public class CashBalance {
 
 	@Column(name = "balance", nullable = false, columnDefinition = "BIGINT UNSIGNED DEFAULT 10000000")
 	private Long balance = 10000000L; // 현금 잔액
-
-	@Column(name = "total_invest", nullable = false, columnDefinition = "BIGINT UNSIGNED DEFAULT 0")
-	private Long totalInvest = 0L; // 총 투자금액
-
 }

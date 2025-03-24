@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 
+import org.secretjuju.kono.entity.CashBalance;
 import org.secretjuju.kono.entity.User;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,6 +51,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 		user.setNickname(nickname);
 		user.setProfileImageUrl(profileImageUrl);
 		user.setCreatedAt(LocalDateTime.now());
+
+		// CashBalance 생성 및 연결
+		CashBalance cashBalance = new CashBalance();
+		cashBalance.setUser(user);
+		cashBalance.setBalance(10000000L);
+		user.setCashBalance(cashBalance);
 
 		log.info("New user saved: {}", nickname);
 		return userRepository.save(user);

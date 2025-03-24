@@ -34,6 +34,6 @@ public class CoinController {
 	public ResponseEntity<ApiResponseDto<Object>> createCoinOrder(
 			@RequestBody CoinSellBuyRequestDto coinSellBuyRequestDto) {
 		coinService.createCoinOrder(coinSellBuyRequestDto);
-		return ResponseEntity.ok(new ApiResponseDto<>("Authentication required", null));
+		return ResponseEntity.ok(new ApiResponseDto<>("Transaction coin success", null));
 	}
 }

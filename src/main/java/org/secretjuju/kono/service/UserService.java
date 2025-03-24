@@ -6,6 +6,7 @@ import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
+import org.secretjuju.kono.exception.CustomException;
 import org.secretjuju.kono.exception.NicknameAlreadyExistsException;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,11 +60,11 @@ public class UserService {
 	// userId로 사용자 정보 조회
 	public UserResponseDto getUserById(UserRequestDto userRequestDto) {
 		Optional<User> user = userRepository.findByKakaoId(userRequestDto.getId());
-		return user.map(UserResponseDto::from).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+		return user.map(UserResponseDto::from).orElseThrow(() -> new CustomException(404, "사용자를 찾을 수 없습니다."));
 	}
 
 	public User getUserByKakaoId(Long kakaoId) {
-		return userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+		return userRepository.findByKakaoId(kakaoId).orElseThrow(() -> new CustomException(404, "사용자를 찾을 수 없습니다."));
 	}
 
 	// 현재 로그인한 사용자 정보 조회
@@ -71,15 +72,15 @@ public class UserService {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
-			throw new RuntimeException("인증된 사용자가 없습니다.");
+			throw new CustomException(401, "인증된 사용자가 없습니다.");
 		}
 
-		if (authentication.getPrincipal() instanceof OAuth2User) {
+		if (authentication.getPrincipal() instanceof OAuth2User) { // 여기서 카카오, 구글 로그인 사용자인지 확인 OAuth2사용자
 			OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 			Long kakaoId = Long.valueOf(oAuth2User.getAttribute("id").toString());
 			return getUserByKakaoId(kakaoId);
 		}
-		throw new RuntimeException("지원되지 않는 인증 방식입니다.");
+		throw new CustomException(401, "지원되지 않는 인증 방식입니다."); // OAuth방식이 아니면 오류발생
 	}
 
 	public UserResponseDto getUserInfo(Long kakaoId) {

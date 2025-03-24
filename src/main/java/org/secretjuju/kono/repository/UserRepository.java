@@ -1,5 +1,6 @@
 package org.secretjuju.kono.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.secretjuju.kono.entity.User;
@@ -12,4 +13,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	Optional<User> findByKakaoId(Long kakaoId);
 	Optional<User> findByNickname(String nickname);
 	void deleteByKakaoId(Long kakaoId);
+	List<User> findAll();
 }
