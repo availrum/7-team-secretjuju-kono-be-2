@@ -18,6 +18,7 @@ import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -150,13 +151,35 @@ public class RankingService {
 	// 현재 사용자의 일간 랭킹 조회
 	public DailyRankingResponseDto getCurrentUserDailyRanking() {
 		User currentUser = userService.getCurrentUser();
-		return new DailyRankingResponseDto();
+
+		DailyRanking dailyRanking = dailyRankingRepository.findByUser(currentUser)
+				.orElseThrow(() -> new EntityNotFoundException("랭킹 정보를 찾을 수 없습니다."));
+
+		List<String> badgeImageUrls = currentUser.getBadges().stream().map(Badge::getBadgeImageUrl)
+				.collect(Collectors.toList());
+
+		DailyRankingResponseDto responseDto = DailyRankingResponseDto.builder().nickname(currentUser.getNickname())
+				.profileImageUrl(currentUser.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
+				.profitRate(dailyRanking.getProfitRate()).rank(dailyRanking.getDailyRank()).build();
+
+		return responseDto;
 	}
 
 	// 현재 사용자의 전체 랭킹 조회
 	public TotalRankingResponseDto getCurrentUserTotalRanking() {
 		User currentUser = userService.getCurrentUser();
-		return new TotalRankingResponseDto();
+
+		TotalRanking totalRanking = totalRankingRepository.findByUser(currentUser)
+				.orElseThrow(() -> new EntityNotFoundException("랭킹 정보를 찾을 수 없습니다."));
+
+		List<String> badgeImageUrls = currentUser.getBadges().stream().map(Badge::getBadgeImageUrl)
+				.collect(Collectors.toList());
+
+		TotalRankingResponseDto responseDto = TotalRankingResponseDto.builder().nickname(currentUser.getNickname())
+				.profileImageUrl(currentUser.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
+				.totalAssets(totalRanking.getCurrentTotalAssets()).rank(totalRanking.getTotalRank()).build();
+
+		return responseDto;
 	}
 
 	private DailyRankingResponseDto convertToDailyRankingResponse(DailyRanking dailyRanking) {
