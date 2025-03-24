@@ -12,22 +12,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Login to DockerHub
+    - name: DockerHub 로그인
       run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-    - name: Build Docker image
-      run: docker build -t gjlee97/my-backend:latest .
+    - name: Docker 이미지 빌드 및 푸시
+      run: |
+        docker build -t gjlee97/my-backend:latest .
+        docker push gjlee97/my-backend:latest
 
-    - name: Push Docker image
-      run: docker push gjlee97/my-backend:latest
-
-    - name: Setup SSH Key (base64 decode)
+    - name: EC2 배포
       run: |
         echo "${{ secrets.EC2_PRIVATE_KEY_B64 }}" | base64 -d > key.pem
         chmod 400 key.pem
-
-    - name: SSH & Deploy on EC2
-      run: |
         ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@3.36.226.164 << EOF
           cd /home/ubuntu/app/backend/
           docker-compose pull
