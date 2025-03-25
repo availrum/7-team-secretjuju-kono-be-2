@@ -2,6 +2,7 @@ package org.secretjuju.kono.controller;
 
 import java.util.List;
 
+import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.ApiResponseDto;
@@ -108,6 +109,24 @@ public class UserController {
 			log.error("관심 코인 조회 중 오류 발생: {}", e.getMessage(), e);
 			throw e;
 		}
+	}
+
+	@GetMapping("/favorites/{ticker}")
+	public ResponseEntity<ApiResponseDto<Boolean>> isFavoriteCoin(@AuthenticationPrincipal OAuth2User oauth2User,
+			@PathVariable String ticker) {
+
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
+		}
+		CoinRequestDto coinRequestDto = new CoinRequestDto(ticker); // ticker를 CoinInfo엔티티에서 id 값으로 변환해주어야함
+
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		User user = userService.getUserByKakaoId(kakaoId);
+
+		// 즐겨찾기 여부를 boolean으로 반환하도록 수정
+		boolean isFavorite = coinFavoriteService.isFavorite(user.getId(), ticker);
+
+		return ResponseEntity.ok(new ApiResponseDto<>("Coin favorite status retrieved", isFavorite));
 	}
 
 	// 관심 코인 등록
