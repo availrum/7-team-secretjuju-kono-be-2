@@ -1,8 +1,11 @@
 package org.secretjuju.kono.controller;
 
+import java.util.List;
+
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.CoinSellBuyRequestDto;
 import org.secretjuju.kono.dto.response.ApiResponseDto;
+import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
 import org.secretjuju.kono.dto.response.CoinResponseDto;
 import org.secretjuju.kono.service.CoinService;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,12 @@ public class CoinController {
 
 	public CoinController(CoinService coinService) {
 		this.coinService = coinService;
+	}
+
+	@GetMapping("")
+	public ResponseEntity<ApiResponseDto<List<CoinInfoResponseDto>>> getAllCoins() {
+		List<CoinInfoResponseDto> coinInfoResponseDtoList = coinService.getAllCoinInfo();
+		return ResponseEntity.ok(new ApiResponseDto<>("Coin list retrieved", coinInfoResponseDtoList));
 	}
 
 	// 코인 특정 정보 조회?

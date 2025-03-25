@@ -1,10 +1,13 @@
 package org.secretjuju.kono.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.CoinSellBuyRequestDto;
+import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
 import org.secretjuju.kono.dto.response.CoinResponseDto;
 import org.secretjuju.kono.dto.response.TickerResponse;
 import org.secretjuju.kono.entity.CashBalance;
@@ -28,6 +31,11 @@ public class CoinService {
 		this.coinRepository = coinRepository;
 		this.userService = userService;
 		this.upbitService = upbitService;
+	}
+
+	public List<CoinInfoResponseDto> getAllCoinInfo() {
+		List<CoinInfo> coinInfos = coinRepository.findAll();
+		return coinInfos.stream().map(this::convertToCoinInfosResponse).collect(Collectors.toList());
 	}
 
 	public CoinResponseDto getCoinByName(CoinRequestDto coinRequestDto) {
@@ -214,5 +222,9 @@ public class CoinService {
 			user.setCashBalance(cashBalance);
 		}
 		cashBalance.setBalance(cashBalance.getBalance() + request.getOrderAmount());
+	}
+
+	private CoinInfoResponseDto convertToCoinInfosResponse(CoinInfo coinInfo) {
+		return new CoinInfoResponseDto(coinInfo.getTicker(), coinInfo.getKrCoinName());
 	}
 }
