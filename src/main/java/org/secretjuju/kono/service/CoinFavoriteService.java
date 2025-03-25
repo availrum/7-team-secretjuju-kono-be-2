@@ -42,6 +42,14 @@ public class CoinFavoriteService {
 		return favoriteCoins.stream().map(coin -> new CoinInfoResponseDto(coin.getTicker(), coin.getKrCoinName()))
 				.collect(Collectors.toList());
 	}
+	public boolean isFavorite(Integer userId, String ticker) {
+		// ticker로 코인 정보 조회
+		CoinInfo coinInfo = coinInfoRepository.findByTicker(ticker)
+				.orElseThrow(() -> new RuntimeException("Coin not found with ticker: " + ticker));
+
+		// 해당 사용자가 이 코인을 관심 목록에 추가했는지 확인
+		return coinFavoriteRepository.existsByUserIdAndCoinInfoId(userId, coinInfo.getId());
+	}
 
 	@Transactional(readOnly = true)
 	public List<CoinInfo> findFavoriteCoinsByUserId(Integer userId) {
