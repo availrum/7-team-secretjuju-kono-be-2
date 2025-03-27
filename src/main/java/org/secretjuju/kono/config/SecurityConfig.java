@@ -57,7 +57,7 @@ public class SecurityConfig {
 						.successHandler(successHandler())
 						.authorizationEndpoint(authorization -> authorization
 								.authorizationRequestResolver(customAuthorizationRequestResolver()))
-						.defaultSuccessUrl("http://dev.playkono.com:5173", true));
+						.defaultSuccessUrl("http://api.playkono.com/", true));
 
 		return http.build();
 	}
@@ -77,8 +77,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		// 정확한 origin 주소를 모두 명시해야 해
-		configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://dev.playkono.com"));
+		configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // 프론트엔드 주소
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
