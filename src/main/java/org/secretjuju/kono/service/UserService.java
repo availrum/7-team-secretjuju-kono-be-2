@@ -3,11 +3,13 @@ package org.secretjuju.kono.service;
 import java.util.Optional;
 
 import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
+import org.secretjuju.kono.dto.request.ProfileImageUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
 import org.secretjuju.kono.exception.CustomException;
 import org.secretjuju.kono.exception.NicknameAlreadyExistsException;
+import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -95,6 +97,7 @@ public class UserService {
 		User currentUser = getCurrentUser();
 		return UserResponseDto.from(currentUser);
 	}
+
 	@Transactional
 	public void withdrawUser(Long kakaoId) {
 		try {
@@ -125,6 +128,17 @@ public class UserService {
 	public boolean hasWithdrawPermission(User user) {
 		// 기본적으로는 자신의 계정만 탈퇴할 수 있도록 true 반환
 		return true;
+	}
+
+	public UserResponseDto updateProfileImage(Long kakaoId, ProfileImageUpdateRequest request) {
+		User user = getUserByKakaoId(kakaoId);
+		if (user == null) {
+			throw new UserNotFoundException("User not found with kakaoId: " + kakaoId);
+		}
+
+		user.setProfileImageUrl(request.getImageUrl());
+		User updatedUser = userRepository.save(user);
+		return UserResponseDto.from(updatedUser);
 	}
 
 }

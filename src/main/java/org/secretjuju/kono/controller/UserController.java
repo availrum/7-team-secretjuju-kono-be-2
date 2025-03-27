@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.secretjuju.kono.dto.request.CoinRequestDto;
 import org.secretjuju.kono.dto.request.NicknameUpdateRequest;
+import org.secretjuju.kono.dto.request.ProfileImageUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
@@ -230,6 +231,26 @@ public class UserController {
 		} catch (Exception e) {
 			log.error("회원탈퇴 처리 중 오류 발생", e);
 			return ResponseEntity.status(500).build();
+		}
+	}
+	// 유저 이미지 URL 변경
+	@PutMapping("/profile-image")
+	public ResponseEntity<ApiResponseDto<UserResponseDto>> updateProfileImage(
+			@AuthenticationPrincipal OAuth2User oauth2User, @RequestBody ProfileImageUpdateRequest request) {
+
+		if (oauth2User == null) {
+			throw new UnauthorizedException("Authentication required");
+		}
+
+		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
+		log.info("프로필 이미지 업데이트 요청: kakaoId={}, imageUrl={}", kakaoId, request.getImageUrl());
+
+		try {
+			UserResponseDto updatedUser = userService.updateProfileImage(kakaoId, request);
+			return ResponseEntity.ok(new ApiResponseDto<>("Profile image updated", updatedUser));
+		} catch (Exception e) {
+			log.error("프로필 이미지 업데이트 중 오류 발생", e);
+			throw e;
 		}
 	}
 }
