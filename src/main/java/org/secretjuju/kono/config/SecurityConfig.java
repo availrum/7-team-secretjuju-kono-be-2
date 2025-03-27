@@ -44,9 +44,9 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(
-						auth -> auth.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**")
-								.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**")
+						.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
 						.defaultAuthenticationEntryPointFor(new CustomAuthenticationEntryPoint(objectMapper),
 								new AntPathRequestMatcher("/api/**"))
