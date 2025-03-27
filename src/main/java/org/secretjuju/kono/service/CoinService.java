@@ -184,13 +184,14 @@ public class CoinService {
 			// 기존 보유량이 있는 경우 수량 증가
 			CoinHolding holding = existingHolding.get();
 			holding.setHoldingQuantity(holding.getHoldingQuantity() + request.getOrderQuantity());
-			holding.setHoldingPrice(request.getOrderPrice());
+			holding.setHoldingPrice((holding.getHoldingPrice() + (request.getOrderPrice() * request.getOrderQuantity()))
+					/ (holding.getHoldingQuantity() + request.getOrderQuantity()));
 		} else {
 			// 기존 보유량이 없는 경우 새로 생성
 			CoinHolding newHolding = new CoinHolding();
 			newHolding.setCoinInfo(coinInfo);
 			newHolding.setHoldingQuantity(request.getOrderQuantity());
-			newHolding.setHoldingPrice(request.getOrderPrice());
+			newHolding.setHoldingPrice(request.getOrderPrice() * request.getOrderQuantity());
 			user.addCoinHolding(newHolding);
 		}
 	}
