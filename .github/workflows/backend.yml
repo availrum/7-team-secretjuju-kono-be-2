@@ -35,16 +35,17 @@ jobs:
           grep -qxF \"$(cat id_rsa.pub)\" ~/.ssh/authorized_keys || echo \"$(cat id_rsa.pub)\" >> ~/.ssh/authorized_keys
           chmod 600 ~/.ssh/authorized_keys
         "
-      
-    - name: SCP JAR to EC2
-      run: scp -i key.pem -o StrictHostKeyChecking=no build/libs/*.jar ubuntu@3.36.226.164:/home/ubuntu/backend/
+    - name: SCP JAR and application.yml to EC2
+      run: |
+        scp -i key.pem build/libs/*.jar ubuntu@3.36.226.164:/home/ubuntu/backend/
+        scp -i key.pem src/main/resources/application.yml ubuntu@3.36.226.164:/home/ubuntu/backend/
 
     - name: SSH & Restart Service
       run: |
-        ssh -v -i key.pem -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ubuntu@3.36.226.164 "
-          sh -c '
-            set +e
-            pkill -f "java -jar" || true
-            nohup java -jar /home/ubuntu/backend/*.jar --server.port=8080 > /home/ubuntu/backend/app.log 2>&1 &
-          '
+        ssh -i key.pem -o StrictHostKeyChecking=no ubuntu@3.36.226.164 "
+        pkill -f 'java -jar' || true
+        nohup java -jar /home/ubuntu/backend/*.jar \
+        --server.port=8080 \
+        --spring.config.location=file:/home/ubuntu/backend/application.yml \
+        > /home/ubuntu/backend/app.log 2>&1 &
         "
