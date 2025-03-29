@@ -1,6 +1,6 @@
 package org.secretjuju.kono.service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -99,7 +99,7 @@ public class CoinService {
 		transaction.setOrderQuantity(coinSellBuyRequestDto.getOrderQuantity());
 		transaction.setOrderPrice(coinSellBuyRequestDto.getOrderPrice());
 		transaction.setOrderAmount(coinSellBuyRequestDto.getOrderAmount());
-		transaction.setCreatedAt(LocalDateTime.now());
+		transaction.setCreatedAt(ZonedDateTime.now());
 		currentUser.addTransaction(transaction);
 
 		// 거래 타입에 따라 코인 보유량과 현금 잔액을 업데이트합니다.
@@ -181,16 +181,27 @@ public class CoinService {
 				.filter(holding -> holding.getCoinInfo().getId().equals(coinInfo.getId())).findFirst();
 
 		if (existingHolding.isPresent()) {
-			// 기존 보유량이 있는 경우 수량 증가
+			// 기존 보유량이 있는 경우 수량과 평균 매수가 업데이트
 			CoinHolding holding = existingHolding.get();
-			holding.setHoldingQuantity(holding.getHoldingQuantity() + request.getOrderQuantity());
-			holding.setHoldingPrice((holding.getHoldingPrice() + (request.getOrderPrice() * request.getOrderQuantity()))
-					/ (holding.getHoldingQuantity() + request.getOrderQuantity()));
+			double newHoldingPrice = request.getOrderQuantity() * request.getOrderPrice();
+			double newTotalQuantity = holding.getHoldingQuantity() + request.getOrderQuantity();
+
+			holding.setHoldingQuantity(newTotalQuantity);
+			holding.setHoldingPrice(holding.getHoldingPrice() + newHoldingPrice); // 항상 코인당 평균 매수가로 저장
+			// // 기존 보유량이 있는 경우 수량 증가
+			// CoinHolding holding = existingHolding.get();
+			// holding.setHoldingQuantity(holding.getHoldingQuantity() +
+			// request.getOrderQuantity());
+			// holding.setHoldingPrice((holding.getHoldingPrice() + (request.getOrderPrice()
+			// * request.getOrderQuantity()))
+			// / (holding.getHoldingQuantity() + request.getOrderQuantity()));
 		} else {
 			// 기존 보유량이 없는 경우 새로 생성
 			CoinHolding newHolding = new CoinHolding();
 			newHolding.setCoinInfo(coinInfo);
 			newHolding.setHoldingQuantity(request.getOrderQuantity());
+			// newHolding.setHoldingPrice(request.getOrderPrice() *
+			// request.getOrderQuantity());
 			newHolding.setHoldingPrice(request.getOrderPrice() * request.getOrderQuantity());
 			user.addCoinHolding(newHolding);
 		}
@@ -210,6 +221,9 @@ public class CoinService {
 		// 코인 보유량 감소
 		CoinHolding holding = existingHolding.get();
 		holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
+
+		// 매수 평균가 감소
+		holding.setHoldingPrice(holding.getHoldingPrice() - (request.getOrderPrice() * request.getOrderQuantity()));
 
 		// 코인을 모두 판매한 경우 보유 목록에서 제거
 		if (holding.getHoldingQuantity() <= 0) {

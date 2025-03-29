@@ -1,6 +1,6 @@
 package org.secretjuju.kono.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,5 +19,5 @@ public class TransactionHistoryResponseDto {
 	private Double orderQuantity;
 	private Double orderPrice;
 	private Long orderAmount;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 }
