@@ -49,6 +49,9 @@ public class TotalRanking {
 	@Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
 	private ZonedDateTime updatedAt;
 
+	// 초기 자산 금액 (모든 사용자는 1천만원으로 시작)
+	public static final long INITIAL_ASSET = 10000000L;
+
 	public TotalRanking(User user) {
 		this.user = user;
 		this.currentTotalAssets = 0L;
@@ -60,5 +63,10 @@ public class TotalRanking {
 
 	public void updateTime() {
 		this.updatedAt = ZonedDateTime.now();
+	}
+
+	// 수익금 계산 (현재 총 자산 - 초기 자산(1천만원))
+	public Long getProfit() {
+		return this.currentTotalAssets - INITIAL_ASSET;
 	}
 }
