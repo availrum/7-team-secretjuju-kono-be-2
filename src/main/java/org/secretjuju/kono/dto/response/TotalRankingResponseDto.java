@@ -15,6 +15,6 @@ public class TotalRankingResponseDto {
 	private String nickname;
 	private String profileImageUrl;
 	private List<String> badgeImageUrl;
-	private Long totalAssets;
+	private Long profit;
 	private int rank;
 }
