@@ -1,6 +1,6 @@
 package org.secretjuju.kono.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.secretjuju.kono.entity.User;
 
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class UserResponseDto {
 	private String nickname;
 	private String profileImageUrl;
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 
 	public static UserResponseDto from(User user) {
 		return UserResponseDto.builder().nickname(user.getNickname()).profileImageUrl(user.getProfileImageUrl())
@@ -21,7 +21,7 @@ public class UserResponseDto {
 	}
 
 	@Builder
-	public UserResponseDto(String nickname, String profileImageUrl, LocalDateTime createdAt) {
+	public UserResponseDto(String nickname, String profileImageUrl, ZonedDateTime createdAt) {
 		this.nickname = nickname;
 		this.profileImageUrl = profileImageUrl;
 		this.createdAt = createdAt;

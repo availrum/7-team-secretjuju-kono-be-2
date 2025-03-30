@@ -1,6 +1,6 @@
 package org.secretjuju.kono.entity;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class User {
 	private Integer id;
 
 	@Column(name = "created_at", nullable = false)
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 
 	@Column(name = "nickname", nullable = false, length = 50, unique = true)
 	private String nickname;
@@ -76,7 +76,7 @@ public class User {
 
 	@PrePersist
 	public void prePersist() {
-		this.createdAt = LocalDateTime.now();
+		this.createdAt = ZonedDateTime.now();
 	}
 
 	// 양방향 관계를 위한 편의 메서드

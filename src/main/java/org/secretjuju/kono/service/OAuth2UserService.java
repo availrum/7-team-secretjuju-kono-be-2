@@ -1,6 +1,6 @@
 package org.secretjuju.kono.service;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Map;
 
@@ -50,7 +50,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 		user.setKakaoId(kakaoId);
 		user.setNickname(nickname);
 		user.setProfileImageUrl(profileImageUrl);
-		user.setCreatedAt(LocalDateTime.now());
+		user.setCreatedAt(ZonedDateTime.now());
 
 		// CashBalance 생성 및 연결
 		CashBalance cashBalance = new CashBalance();
