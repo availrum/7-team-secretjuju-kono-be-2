@@ -46,7 +46,7 @@ public class SecurityConfig {
 		http.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**")
-						.permitAll().requestMatchers("/api/**").authenticated().anyRequest().permitAll())
+						.permitAll().requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
 						.defaultAuthenticationEntryPointFor(new CustomAuthenticationEntryPoint(objectMapper),
 								new AntPathRequestMatcher("/api/**"))
@@ -57,8 +57,7 @@ public class SecurityConfig {
 						.successHandler(successHandler())
 						.authorizationEndpoint(authorization -> authorization
 								.authorizationRequestResolver(customAuthorizationRequestResolver()))
-						.defaultSuccessUrl("http://dev.playkono.com/", true));
-
+						.defaultSuccessUrl("http://dev.playkono.com", true));
 		return http.build();
 	}
 
