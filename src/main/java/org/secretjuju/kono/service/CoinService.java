@@ -223,7 +223,8 @@ public class CoinService {
 		holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
 
 		// 매수 평균가 감소
-		holding.setHoldingPrice(holding.getHoldingPrice() - (request.getOrderPrice() * request.getOrderQuantity()));
+		holding.setHoldingPrice(holding.getHoldingPrice()
+				- (holding.getHoldingPrice() / (holding.getHoldingQuantity() * request.getOrderQuantity())));
 
 		// 코인을 모두 판매한 경우 보유 목록에서 제거
 		if (holding.getHoldingQuantity() <= 0) {
