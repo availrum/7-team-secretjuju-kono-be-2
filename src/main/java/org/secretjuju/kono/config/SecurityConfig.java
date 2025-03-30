@@ -57,7 +57,7 @@ public class SecurityConfig {
 						.successHandler(successHandler())
 						.authorizationEndpoint(authorization -> authorization
 								.authorizationRequestResolver(customAuthorizationRequestResolver()))
-						.defaultSuccessUrl("http://localhost:5173/", true));
+						.defaultSuccessUrl("http://dev.playkono.com", true));
 
 		return http.build();
 	}
