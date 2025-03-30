@@ -1,6 +1,6 @@
 package org.secretjuju.kono.entity;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class CoinTransaction {
 	private Double orderPrice;
 
 	@Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime createdAt;
+	private ZonedDateTime createdAt;
 
 	@Column(name = "order_amount", nullable = false, columnDefinition = "BIGINT UNSIGNED")
 	private Long orderAmount;

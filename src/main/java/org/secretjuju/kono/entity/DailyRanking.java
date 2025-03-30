@@ -1,6 +1,6 @@
 package org.secretjuju.kono.entity;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,7 +44,7 @@ public class DailyRanking {
 	private Integer dailyRank; // 일간 랭킹 순위
 
 	@Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-	private LocalDateTime updatedAt;
+	private ZonedDateTime updatedAt;
 
 	public DailyRanking(User user) {
 		this.user = user;
@@ -52,10 +52,10 @@ public class DailyRanking {
 		this.lastDayTotalAssets = 0L;
 		this.profitRate = 0.0;
 		this.dailyRank = 0;
-		this.updatedAt = LocalDateTime.now();
+		this.updatedAt = ZonedDateTime.now();
 	}
 
 	public void updateTime() {
-		this.updatedAt = LocalDateTime.now();
+		this.updatedAt = ZonedDateTime.now();
 	}
 }
