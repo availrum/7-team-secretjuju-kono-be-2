@@ -1,5 +1,6 @@
 package org.secretjuju.kono.service;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -74,11 +75,13 @@ public class CoinService {
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
 			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
-				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);
+				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice) + 1; // 소수점
+																													// 가격
+																													// 남는것
+																													// 방지
 				coinSellBuyRequestDto.setOrderAmount(calculatedAmount);
 			} else {
-
-				coinSellBuyRequestDto.setOrderAmount(100000L);
+				throw new CustomException(400, "거래시 주문금액 혹은 갯수 필수값이 누락되었습니다.");
 			}
 		}
 
@@ -99,7 +102,7 @@ public class CoinService {
 		transaction.setOrderQuantity(coinSellBuyRequestDto.getOrderQuantity());
 		transaction.setOrderPrice(coinSellBuyRequestDto.getOrderPrice());
 		transaction.setOrderAmount(coinSellBuyRequestDto.getOrderAmount());
-		transaction.setCreatedAt(ZonedDateTime.now());
+		transaction.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Seoul"))); // 거래 시간
 		currentUser.addTransaction(transaction);
 
 		// 거래 타입에 따라 코인 보유량과 현금 잔액을 업데이트합니다.
@@ -217,27 +220,32 @@ public class CoinService {
 		} else if (request.getOrderAmount() < 5000) {
 			throw new CustomException(400, "최소 주문 금액은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
 		}
+		if (request.getOrderQuantity() / existingHolding.get().getHoldingQuantity() <= 1) {
+			// 코인 보유량 감소
+			System.out.println("유효한 거래입니다!");
+			CoinHolding holding = existingHolding.get();
+			holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
 
-		// 코인 보유량 감소
-		CoinHolding holding = existingHolding.get();
-		holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
+			System.out.println(holding.getHoldingPrice()
+					- ((holding.getHoldingPrice() / holding.getHoldingQuantity()) * request.getOrderQuantity())); ///// 로그확인
 
-		// 매수 평균가 감소
-		holding.setHoldingPrice(holding.getHoldingPrice()
-				- (holding.getHoldingPrice() / (holding.getHoldingQuantity() * request.getOrderQuantity())));
+			// 매수 평균가 감소
+			holding.setHoldingPrice(holding.getHoldingPrice()
+					- ((holding.getHoldingPrice() / holding.getHoldingQuantity()) * request.getOrderQuantity()));
 
-		// 코인을 모두 판매한 경우 보유 목록에서 제거
-		if (holding.getHoldingQuantity() <= 0) {
-			user.getCoinHoldings().remove(holding);
+			// 코인을 모두 판매한 경우 보유 목록에서 제거
+			if (holding.getHoldingQuantity() <= 0) {
+				user.getCoinHoldings().remove(holding);
+			}
+			// 현금 잔액 증가
+			CashBalance cashBalance = user.getCashBalance();
+			if (cashBalance == null) {
+				cashBalance = new CashBalance();
+				user.setCashBalance(cashBalance);
+			}
+			cashBalance.setBalance(cashBalance.getBalance() + request.getOrderAmount());
 		}
 
-		// 현금 잔액 증가
-		CashBalance cashBalance = user.getCashBalance();
-		if (cashBalance == null) {
-			cashBalance = new CashBalance();
-			user.setCashBalance(cashBalance);
-		}
-		cashBalance.setBalance(cashBalance.getBalance() + request.getOrderAmount());
 	}
 
 	private CoinInfoResponseDto convertToCoinInfosResponse(CoinInfo coinInfo) {
