@@ -32,7 +32,6 @@ public class RankingService {
 	private final CoinHoldingRepository coinHoldingRepository;
 	private final CashBalanceRepository cashBalanceRepository;
 	private final UserService userService;
-	private final CoinService coinService;
 	private final CoinPriceService coinPriceService;
 
 	// 사용자의 총 자산 계산
@@ -57,9 +56,6 @@ public class RankingService {
 			String ticker = holding.getCoinInfo().getTicker(); // "BTC" 형식 가정
 			Double currentPrice = coinPriceService.getPriceByTicker(ticker);
 			return (long) (holding.getHoldingQuantity() * currentPrice);
-			// Double currentPrice =
-			// coinPriceService.getPriceByTicker(holding.getCoinInfo().getTicker());
-			// return (long) (holding.getHoldingQuantity() * currentPrice);
 		}).reduce(0L, Long::sum);
 
 		return cashBalance + coinAssets;
