@@ -54,8 +54,12 @@ public class RankingService {
 
 		// 코인 자산
 		Long coinAssets = coinHoldingRepository.findByUser(user).stream().map(holding -> {
-			Double currentPrice = coinPriceService.getPriceByTicker(holding.getCoinInfo().getTicker());
+			String ticker = holding.getCoinInfo().getTicker(); // "BTC" 형식 가정
+			Double currentPrice = coinPriceService.getPriceByTicker(ticker);
 			return (long) (holding.getHoldingQuantity() * currentPrice);
+			// Double currentPrice =
+			// coinPriceService.getPriceByTicker(holding.getCoinInfo().getTicker());
+			// return (long) (holding.getHoldingQuantity() * currentPrice);
 		}).reduce(0L, Long::sum);
 
 		return cashBalance + coinAssets;
