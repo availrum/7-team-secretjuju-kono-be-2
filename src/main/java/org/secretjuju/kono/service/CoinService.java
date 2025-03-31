@@ -75,7 +75,10 @@ public class CoinService {
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
 			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
-				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);
+				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice) + 1; // 소수점
+																													// 가격
+																													// 남는것
+																													// 방지
 				coinSellBuyRequestDto.setOrderAmount(calculatedAmount);
 			} else {
 				throw new CustomException(400, "거래시 주문금액 혹은 갯수 필수값이 누락되었습니다.");
