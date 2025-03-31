@@ -38,6 +38,7 @@ spring:
       allowed-origins:
         - https://dev.playkono.com
         - http://localhost:5173  # 개발 환경용
+        - http://localhost:4173
       allowed-methods:
         - GET
         - POST
@@ -62,6 +63,7 @@ cloud:
       allowed-origins:
         - https://dev.playkono.com
         - http://localhost:5173
+        - http://localhost:4173
 
 thymeleaf:
   enabled: true
