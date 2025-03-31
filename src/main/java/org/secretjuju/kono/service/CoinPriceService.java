@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import org.secretjuju.kono.repository.CoinInfoRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -63,14 +61,6 @@ public class CoinPriceService {
 		}
 	}
 
-	// 애플리케이션 시작 시 초기화
-	@PostConstruct
-	public void initialize() {
-		updateAllCoinPrices();
-	}
-
-	// 5분마다 가격 업데이트
-	@Scheduled(fixedRate = 300000) // 5분 = 300,000 밀리초
 	public void updateAllCoinPrices() {
 		log.info("코인 가격 업데이트 시작");
 		try {
