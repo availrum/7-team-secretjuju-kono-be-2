@@ -33,6 +33,7 @@ public class RankingService {
 	private final CashBalanceRepository cashBalanceRepository;
 	private final UserService userService;
 	private final CoinService coinService;
+	private final CoinPriceService coinPriceService;
 
 	// 사용자의 총 자산 계산
 	private Long calculateTotalAssets(User user) {
@@ -53,7 +54,7 @@ public class RankingService {
 
 		// 코인 자산
 		Long coinAssets = coinHoldingRepository.findByUser(user).stream().map(holding -> {
-			Double currentPrice = coinService.getCurrentPrice(holding.getCoinInfo().getTicker());
+			Double currentPrice = coinPriceService.getPriceByTicker(holding.getCoinInfo().getTicker());
 			return (long) (holding.getHoldingQuantity() * currentPrice);
 		}).reduce(0L, Long::sum);
 
