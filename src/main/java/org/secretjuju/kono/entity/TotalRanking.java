@@ -54,8 +54,8 @@ public class TotalRanking {
 
 	public TotalRanking(User user) {
 		this.user = user;
-		this.currentTotalAssets = 0L;
-		this.lastDayTotalAssets = 0L;
+		this.currentTotalAssets = INITIAL_ASSET;
+		this.lastDayTotalAssets = INITIAL_ASSET;
 		this.profitRate = 0.0;
 		this.totalRank = 0;
 		this.updatedAt = ZonedDateTime.now();

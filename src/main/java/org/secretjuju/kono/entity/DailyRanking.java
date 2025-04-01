@@ -46,10 +46,13 @@ public class DailyRanking {
 	@Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
 	private ZonedDateTime updatedAt;
 
+	// 초기 자산 금액 (모든 사용자는 1천만원으로 시작)
+	public static final long INITIAL_ASSET = 10000000L;
+
 	public DailyRanking(User user) {
 		this.user = user;
-		this.currentTotalAssets = 0L;
-		this.lastDayTotalAssets = 0L;
+		this.currentTotalAssets = INITIAL_ASSET;
+		this.lastDayTotalAssets = INITIAL_ASSET;
 		this.profitRate = 0.0;
 		this.dailyRank = 0;
 		this.updatedAt = ZonedDateTime.now();
