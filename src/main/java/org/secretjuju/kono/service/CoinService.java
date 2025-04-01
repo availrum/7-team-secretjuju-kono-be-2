@@ -86,7 +86,7 @@ public class CoinService {
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
 			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
-				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice) + 1; // 소수점
+				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice) + 2; // 소수점
 																													// 가격
 																													// 남는것
 																													// 방지
