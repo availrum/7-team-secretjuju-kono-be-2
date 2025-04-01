@@ -1,5 +1,6 @@
 package org.secretjuju.kono.dto.response;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -17,4 +18,5 @@ public class TotalRankingResponseDto {
 	private List<String> badgeImageUrl;
 	private Long profit;
 	private int rank;
+	private ZonedDateTime updatedAt;
 }

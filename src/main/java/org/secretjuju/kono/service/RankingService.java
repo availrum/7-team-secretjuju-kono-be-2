@@ -155,7 +155,8 @@ public class RankingService {
 
 		DailyRankingResponseDto responseDto = DailyRankingResponseDto.builder().nickname(currentUser.getNickname())
 				.profileImageUrl(currentUser.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
-				.profitRate(dailyRanking.getProfitRate()).rank(dailyRanking.getDailyRank()).build();
+				.profitRate(dailyRanking.getProfitRate()).rank(dailyRanking.getDailyRank())
+				.updatedAt(dailyRanking.getUpdatedAt()).build();
 
 		return responseDto;
 	}
@@ -172,7 +173,8 @@ public class RankingService {
 
 		TotalRankingResponseDto responseDto = TotalRankingResponseDto.builder().nickname(currentUser.getNickname())
 				.profileImageUrl(currentUser.getProfileImageUrl()).badgeImageUrl(badgeImageUrls)
-				.profit(totalRanking.getProfit()).rank(totalRanking.getTotalRank()).build();
+				.profit(totalRanking.getProfit()).rank(totalRanking.getTotalRank())
+				.updatedAt(totalRanking.getUpdatedAt()).build();
 
 		return responseDto;
 	}
@@ -181,7 +183,7 @@ public class RankingService {
 		return new DailyRankingResponseDto(dailyRanking.getUser().getNickname(),
 				dailyRanking.getUser().getProfileImageUrl(),
 				dailyRanking.getUser().getBadges().stream().map(Badge::getBadgeImageUrl).collect(Collectors.toList()),
-				dailyRanking.getProfitRate(), dailyRanking.getDailyRank());
+				dailyRanking.getProfitRate(), dailyRanking.getDailyRank(), dailyRanking.getUpdatedAt());
 	}
 
 	private TotalRankingResponseDto convertToTotalRankingResponse(TotalRanking totalRanking) {
@@ -189,6 +191,7 @@ public class RankingService {
 				.profileImageUrl(totalRanking.getUser().getProfileImageUrl())
 				.badgeImageUrl(totalRanking.getUser().getBadges().stream().map(Badge::getBadgeImageUrl)
 						.collect(Collectors.toList()))
-				.profit(totalRanking.getProfit()).rank(totalRanking.getTotalRank()).build();
+				.profit(totalRanking.getProfit()).rank(totalRanking.getTotalRank())
+				.updatedAt(totalRanking.getUpdatedAt()).build();
 	}
 }
