@@ -86,10 +86,10 @@ public class CoinService {
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
 			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
-				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice) + 2; // 소수점
-																													// 가격
-																													// 남는것
-																													// 방지
+				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice); // 소수점
+																												// 가격
+																												// 남는것
+																												// 방지
 				coinSellBuyRequestDto.setOrderAmount(calculatedAmount);
 			} else {
 				throw new CustomException(400, "거래시 주문금액 혹은 갯수 필수값이 누락되었습니다.");
@@ -243,7 +243,7 @@ public class CoinService {
 			holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
 
 			// 코인을 모두 판매한 경우 보유 목록에서 제거(0.1오류 로직 부분 검토 코드)
-			if (holding.getHoldingQuantity() <= 0) {
+			if (holding.getHoldingQuantity() <= 0.00001 || holding.getHoldingPrice() <= 1) {
 				user.getCoinHoldings().remove(holding);
 			}
 			// 현금 잔액 증가
