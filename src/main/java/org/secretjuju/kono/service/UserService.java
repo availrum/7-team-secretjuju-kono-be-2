@@ -141,4 +141,29 @@ public class UserService {
 		return UserResponseDto.from(updatedUser);
 	}
 
+	@Transactional
+	public void updateNickname(User user, String newNickname) {
+		// 닉네임 중복 체크
+		if (isNicknameExists(newNickname)) {
+			throw new CustomException(409, "이미 사용 중인 닉네임입니다.");
+		}
+
+		// 닉네임 유효성 검사
+		if (!isValidNickname(newNickname)) {
+			throw new CustomException(400, "닉네임 형식이 올바르지 않습니다.");
+		}
+
+		user.setNickname(newNickname);
+		userRepository.save(user);
+	}
+
+	public boolean isNicknameExists(String nickname) {
+		return userRepository.findByNickname(nickname).isPresent();
+	}
+
+	private boolean isValidNickname(String nickname) {
+		// 닉네임 유효성 검사 로직
+		return nickname != null && nickname.length() >= 2 && nickname.length() <= 10
+				&& nickname.matches("^[a-zA-Z0-9가-힣]*$");
+	}
 }
