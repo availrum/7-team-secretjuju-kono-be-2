@@ -8,14 +8,15 @@ import org.secretjuju.kono.dto.request.ProfileImageUpdateRequest;
 import org.secretjuju.kono.dto.request.UserRequestDto;
 import org.secretjuju.kono.dto.response.ApiResponseDto;
 import org.secretjuju.kono.dto.response.CoinInfoResponseDto;
+import org.secretjuju.kono.dto.response.ErrorResponse;
 import org.secretjuju.kono.dto.response.UserResponseDto;
 import org.secretjuju.kono.entity.User;
-import org.secretjuju.kono.exception.NicknameAlreadyExistsException;
 import org.secretjuju.kono.exception.PermissionDeniedException;
 import org.secretjuju.kono.exception.UnauthorizedException;
 import org.secretjuju.kono.exception.UserNotFoundException;
 import org.secretjuju.kono.service.CoinFavoriteService;
 import org.secretjuju.kono.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -60,25 +60,38 @@ public class UserController {
 	}
 
 	@PutMapping("/nickname")
-	public ResponseEntity<ApiResponseDto<UserResponseDto>> updateNickname(
-			@AuthenticationPrincipal OAuth2User oauth2User, @Valid @RequestBody NicknameUpdateRequest request) {
-
-		if (oauth2User == null) {
-			throw new UnauthorizedException("Authentication required");
-		}
-
-		Long kakaoId = Long.valueOf(oauth2User.getAttribute("id").toString());
-		log.info("닉네임 업데이트 요청: kakaoId={}, newNickname={}", kakaoId, request.getNickname());
-
+	public ResponseEntity<?> updateNickname(@RequestBody NicknameUpdateRequest request) {
 		try {
-			UserResponseDto updatedUser = userService.updateNickname(kakaoId, request);
-			return ResponseEntity.ok(new ApiResponseDto<>("User information updated", updatedUser));
-		} catch (NicknameAlreadyExistsException e) {
-			throw e; // 글로벌 예외 핸들러로 전달
+			// 닉네임 유효성 검사
+			if (!isValidNickname(request.getNickname())) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(new ErrorResponse("닉네임은 2~10자의 한글, 영문, 숫자만 사용할 수 있어요."));
+			}
+
+			// 인증 확인
+			User currentUser = userService.getCurrentUser();
+			if (currentUser == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("로그인이 필요합니다."));
+			}
+
+			// 닉네임 중복 확인
+			if (userService.isNicknameExists(request.getNickname())) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("이미 사용 중인 닉네임입니다."));
+			}
+
+			// 닉네임 업데이트
+			userService.updateNickname(currentUser, request.getNickname());
+			return ResponseEntity.ok().build();
+
 		} catch (Exception e) {
-			log.error("닉네임 업데이트 중 오류 발생", e);
-			throw e; // 글로벌 예외 핸들러로 전달
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("닉네임 변경에 실패했습니다."));
 		}
+	}
+
+	private boolean isValidNickname(String nickname) {
+		// 닉네임 유효성 검사 로직
+		return nickname != null && nickname.length() >= 2 && nickname.length() <= 10
+				&& nickname.matches("^[a-zA-Z0-9가-힣]*$");
 	}
 
 	@GetMapping("/favorites")
