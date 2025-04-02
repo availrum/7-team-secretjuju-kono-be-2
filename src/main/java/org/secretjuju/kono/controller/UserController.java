@@ -64,7 +64,8 @@ public class UserController {
 		try {
 			// 닉네임 유효성 검사
 			if (!isValidNickname(request.getNickname())) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("닉네임 형식이 올바르지 않습니다."));
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+						.body(new ErrorResponse("닉네임은 2~10자의 한글, 영문, 숫자만 사용할 수 있어요."));
 			}
 
 			// 인증 확인
