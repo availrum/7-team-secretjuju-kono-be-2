@@ -82,25 +82,19 @@ public class CoinService {
 		// 현재가 설정
 		coinSellBuyRequestDto.setOrderPrice(currentPrice);
 
-		// orderAmount가 null인 경우 체크
+		// orderAmount가 null일 때 수량으로 계산
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
-			// orderQuantity가 설정되어 있으면 그것을 기준으로 orderAmount 계산
-			if (coinSellBuyRequestDto.getOrderQuantity() != null && coinSellBuyRequestDto.getOrderQuantity() > 0) {
-				Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice); // 소수점
-																												// 가격
-																												// 남는것
-																												// 방지
-				coinSellBuyRequestDto.setOrderAmount(calculatedAmount);
-			} else {
-				throw new CustomException(400, "거래시 주문금액 혹은 갯수 필수값이 누락되었습니다.");
-			}
+			Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);
+			coinSellBuyRequestDto.setOrderAmount(calculatedAmount + 1);
 		}
-
-		// 주문 금액을 현재가로 나눠서 코인 수량 계산
-		Double orderQuantity = coinSellBuyRequestDto.getOrderAmount() / currentPrice;
-		// 소수점 8자리까지만 계산 (Bitcoin 최소 단위)
-		orderQuantity = Math.floor(orderQuantity * 100000000) / 100000000;
-		coinSellBuyRequestDto.setOrderQuantity(orderQuantity);
+		System.out.println("coinSellBuyRequestDto.getOrderType(): " + coinSellBuyRequestDto.getOrderType());
+		if (coinSellBuyRequestDto.getOrderQuantity() == null) {
+			// 다시 수량 계산
+			Double orderQuantity = coinSellBuyRequestDto.getOrderAmount() / currentPrice;
+			// orderQuantity = Math.floor(orderQuantity * 100000000) / 100000000;
+			// if(orderQuantity <coinSellBuyRequestDto.getOrderQuantity()){
+			coinSellBuyRequestDto.setOrderQuantity(orderQuantity);
+		}
 
 		// 주문 유효성 검사 및 조정
 		validateAndAdjustOrder(currentUser, coinSellBuyRequestDto, coinInfo);
@@ -229,27 +223,28 @@ public class CoinService {
 			throw new CustomException(400, "최소 주문 금액은 5000원입니다. 현재 주문 금액: " + request.getOrderAmount());
 		}
 		if (request.getOrderQuantity() / existingHolding.get().getHoldingQuantity() <= 1) {
-			// 코인 보유량 감소
-			System.out.println("유효한 거래입니다!");
 			CoinHolding holding = existingHolding.get();
 
-			System.out.println(holding.getHoldingPrice()
-					- ((holding.getHoldingPrice() / holding.getHoldingQuantity()) * request.getOrderQuantity())); ///// 로그확인
-
-			// 매수 평균가 감소
-			holding.setHoldingPrice(holding.getHoldingPrice()
-					- ((holding.getHoldingPrice() / holding.getHoldingQuantity()) * request.getOrderQuantity()));
-
-			holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
-
-			// 코인을 모두 판매한 경우 보유 목록에서 제거(0.1오류 로직 부분 검토 코드)
-			if (holding.getHoldingQuantity() <= 0.00001 || holding.getHoldingPrice() <= 1) {
+			// 전체 수량 판매 요청인 경우
+			if (Math.abs(holding.getHoldingQuantity() - request.getOrderQuantity()) < 0.00000001
+					&& 0 <= Math.abs(holding.getHoldingQuantity() - request.getOrderQuantity())) { // 소수점 8자리 미만은 전부 판매
+				// 현재가 조회
+				Double currentPrice = getCurrentPrice(coinInfo.getTicker());
+				// 보유량 전체 제거
 				user.getCoinHoldings().remove(holding);
+				// 정확한 금액 계산
+				request.setOrderAmount(Math.round(holding.getHoldingQuantity() * currentPrice));
+			} else {
+				// 일부 수량 판매
+				holding.setHoldingQuantity(holding.getHoldingQuantity() - request.getOrderQuantity());
+				// 평균 매수가 비율 유지
+				holding.setHoldingPrice(holding.getHoldingPrice()
+						* (holding.getHoldingQuantity() / (holding.getHoldingQuantity() + request.getOrderQuantity())));
 			}
+
 			// 현금 잔액 증가
 			cashBalance.setBalance(cashBalance.getBalance() + request.getOrderAmount());
 		}
-
 	}
 
 	private CoinInfoResponseDto convertToCoinInfosResponse(CoinInfo coinInfo) {
