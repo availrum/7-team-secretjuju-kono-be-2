@@ -121,4 +121,5 @@ project:
 
 frontend:
   redirect-uri: ${FRONTEND_REDIRECT_URI}
+  cloud-front: ${CLOUD_FRONT_URL}
 

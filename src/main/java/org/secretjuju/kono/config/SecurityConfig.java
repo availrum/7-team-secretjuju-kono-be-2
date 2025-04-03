@@ -44,6 +44,8 @@ public class SecurityConfig {
 
 	@Value("${frontend.redirect-uri}")
 	private String frontendRedirectUri;
+	@Value("${frontend.cloud-front-uri}")
+	private String cloudFrontRedirectUri;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -80,7 +82,9 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList(frontendRedirectUri, "http://localhost:4173")); // 프론트엔드 주소
+		configuration
+				.setAllowedOrigins(Arrays.asList(frontendRedirectUri, "http://localhost:4173", cloudFrontRedirectUri)); // 프론트엔드
+																														// 주소
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		configuration.setAllowedHeaders(Arrays.asList("*"));
 		configuration.setAllowCredentials(true);
@@ -90,7 +94,7 @@ public class SecurityConfig {
 		return source;
 	}
 
-	// 로그인 성공 후 실행되는 핸들러
+	// 로그인 성공 후 실행되는 핸들러.
 	// 사용자 정보를 json형태로 응답
 	@Bean
 	public AuthenticationSuccessHandler successHandler() {
