@@ -91,7 +91,7 @@ server:
       cookie:
         name: SESSIONID
         http-only: true
-        secure: false  # HTTPS 사용시 true로 변경
+        secure: true  # HTTPS 사용시 true로 변경
       tracking-modes: cookie  # URL 재작성 비활성화
     encoding:
       charset: UTF-8
