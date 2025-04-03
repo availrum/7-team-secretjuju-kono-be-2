@@ -48,6 +48,12 @@ spring:
       allow-credentials: true
       max-age: 3600
 
+  spring:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 5000
+
 cloud:
   aws:
     credentials:
