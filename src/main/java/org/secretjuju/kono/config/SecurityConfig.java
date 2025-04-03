@@ -94,7 +94,7 @@ public class SecurityConfig {
 		return source;
 	}
 
-	// 로그인 성공 후 실행되는 핸들러
+	// 로그인 성공 후 실행되는 핸들러.
 	// 사용자 정보를 json형태로 응답
 	@Bean
 	public AuthenticationSuccessHandler successHandler() {
