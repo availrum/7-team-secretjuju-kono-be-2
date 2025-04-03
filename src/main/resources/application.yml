@@ -115,8 +115,8 @@ project:
     local: ${SUCCESS_URL_LOCAL:http://localhost:5173}
 
   allow-origin:
-    main: ${ALLOW_ORIGIN_MAIN:http://www.playkono.com}
-    dev:  ${ALLOW_ORIGIN_DEV:http://dev.playkono.com}
+    main: ${ALLOW_ORIGIN_MAIN:https://www.playkono.com}
+    dev:  ${ALLOW_ORIGIN_DEV:https://dev.playkono.com}
     local: ${ALLOW_ORIGIN_LOCAL:http://localhost:5173}
 
 frontend:
