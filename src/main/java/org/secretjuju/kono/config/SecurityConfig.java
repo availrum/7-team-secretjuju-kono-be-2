@@ -45,7 +45,7 @@ public class SecurityConfig {
 
 	@Value("${frontend.redirect-uri}")
 	private String frontendRedirectUri;
-	@Value("${frontend.cloud-front-uri}")
+	@Value("${cloud.aws.s3.base-url}")
 	private String cloudFrontRedirectUri;
 
 	@Bean

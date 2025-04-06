@@ -34,7 +34,7 @@ public class S3Service {
 	}
 
 	public PresignedUrlResponseDto generatePresignedUrl(String fileName, String contentType) {
-		String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
+		String uniqueFileName = "images/" + UUID.randomUUID().toString() + "_" + fileName;
 
 		try {
 			PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucketName).key(uniqueFileName)
