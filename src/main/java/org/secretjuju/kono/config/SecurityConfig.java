@@ -10,6 +10,7 @@ import org.secretjuju.kono.service.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -50,10 +51,11 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(AbstractHttpConfigurer::disable)
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**")
-						.permitAll().requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
+		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
+				// 모든 OPTIONS 요청을 인증 없이 허용
+				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**").permitAll()
+				.requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
 						.defaultAuthenticationEntryPointFor(new CustomAuthenticationEntryPoint(objectMapper),
 								new AntPathRequestMatcher("/api/**"))
