@@ -53,7 +53,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
 				// 모든 OPTIONS 요청을 인증 없이 허용
-				.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
 				.requestMatchers("/", "/login", "/logout", "/error", "/css/**", "/js/**", "/oauth2/**").permitAll()
 				.requestMatchers("/api/" + "**").authenticated().anyRequest().permitAll())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
