@@ -15,7 +15,7 @@ sentry {
 
 	org = "secret-juju"
 	projectName = "cono-be"
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	authToken.set(System.getenv("SENTRY_AUTH_TOKEN"))
 }
 group = 'org.secretjuju'
 version = '0.0.1-SNAPSHOT'
