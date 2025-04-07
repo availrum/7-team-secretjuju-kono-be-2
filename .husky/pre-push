@@ -1,0 +1,14 @@
+##!/bin/sh
+#
+## 모든 테스트 실행
+#echo "Running tests before push..."
+#./gradlew clean test
+#
+## 테스트 실패 시 푸시 중단
+#if [ $? -ne 0 ]; then
+#  echo "Tests failed! Push aborted."
+#  exit 1
+#fi
+#
+#echo "Tests passed! Pushing changes..."
+#exit 0

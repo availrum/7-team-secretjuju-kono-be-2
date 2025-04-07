@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### npm ###
+node_modules
+
+### env ###
+dev.env
+
+hello.env
+src/main/resources/hello.env

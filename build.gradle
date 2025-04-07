@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.3'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'checkstyle'
+	id 'com.diffplug.spotless' version '6.25.0' // auto code formatting
 }
 
 group = 'org.secretjuju'
@@ -11,6 +12,15 @@ version = '0.0.1-SNAPSHOT'
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+spotless {
+	java {
+		target '**/*.java'
+		eclipse().configFile("checkstyle/naver-checkstyle-spotless.xml") // 네이버 스타일 적용
+		removeUnusedImports() // 불필요한 import 삭제
+		importOrder("java", "javax", "org", "com") // import 정렬
 	}
 }
 
@@ -40,17 +50,36 @@ checkstyle {
 }
 
 dependencies {
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.10.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'// oauth2.0
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON 파싱을 위한 모듈
+	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+	implementation 'software.amazon.awssdk:s3:2.17.28'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'org.springframework.session:spring-session-core'
+	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.10.0'
+	implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-//	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
 }
 
 tasks.named('test') {
