@@ -82,9 +82,13 @@ public class CoinService {
 		// 현재가 설정
 		coinSellBuyRequestDto.setOrderPrice(currentPrice);
 
-		if (coinSellBuyRequestDto.getOrderAmount() != null && coinSellBuyRequestDto.getOrderQuantity() != null) {
-			throw new CustomException(400, "둘중한개만 쓰세요");
-		}
+		// if(coinSellBuyRequestDto.getOrderAmount() != null &&
+		// coinSellBuyRequestDto.getOrderQuantity() != null) {
+		// if(coinSellBuyRequestDto.getOrderAmount() ==
+		// Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice)){
+		//
+		// }
+		// }
 		// orderAmount가 null일 때 수량으로 계산
 		if (coinSellBuyRequestDto.getOrderAmount() == null) {
 			Long calculatedAmount = Math.round(coinSellBuyRequestDto.getOrderQuantity() * currentPrice);
@@ -192,6 +196,8 @@ public class CoinService {
 
 		// 코인 보유량 업데이트
 		if (existingHolding.isPresent()) {
+			Double orderQuantity = request.getOrderAmount() / request.getOrderPrice();
+			request.setOrderQuantity(orderQuantity);
 			// 기존 보유량이 있는 경우 수량과 평균 매수가 업데이트
 			CoinHolding holding = existingHolding.get();
 			double newHoldingPrice = request.getOrderQuantity() * request.getOrderPrice();
@@ -200,6 +206,10 @@ public class CoinService {
 			holding.setHoldingQuantity(newTotalQuantity);
 			holding.setHoldingPrice(holding.getHoldingPrice() + newHoldingPrice); // 항상 코인당 평균 매수가로 저장
 		} else {
+			// 가격으로 개수 다시 검증
+			Double orderQuantity = request.getOrderAmount() / request.getOrderPrice();
+			request.setOrderQuantity(orderQuantity);
+
 			// 기존 보유량이 없는 경우 새로 생성
 			CoinHolding newHolding = new CoinHolding();
 			newHolding.setCoinInfo(coinInfo);
